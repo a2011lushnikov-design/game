@@ -3,58 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тапалка</title>
+    <title>Шахтёр-RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #1a1a2e; color: white; text-align: center; font-family: Arial; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .score { font-size: 48px; font-weight: bold; margin: 20px; }
-        .coin { width: 150px; height: 150px; background: radial-gradient(circle, #ffd700, #ff8c00); border-radius: 50%; margin: 30px auto; cursor: pointer; box-shadow: 0 0 40px rgba(255,215,0,0.5); transition: transform 0.1s; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 60px; }
-        .coin:active { transform: scale(0.9); }
-        .level { font-size: 20px; margin: 10px; color: #aaa; }
-        .btn { background: #ffd700; color: #1a1a2e; border: none; padding: 12px 30px; border-radius: 25px; font-size: 18px; font-weight: bold; margin: 10px; cursor: pointer; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:linear-gradient(180deg,#0d0d0d,#1a1a2e);color:#fff;font-family:Arial;min-height:100vh;overflow-y:auto}
+        .header{background:rgba(0,0,0,0.5);padding:10px;position:sticky;top:0;z-index:10}
+        .coins{font-size:28px;color:#ffd700;font-weight:bold}
+        .stats{display:flex;justify-content:space-around;font-size:12px;color:#aaa;margin-top:5px}
+        .area{text-align:center;padding:15px;min-height:250px}
+        .rock{width:100px;height:100px;margin:30px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;transition:0.1s;user-select:none}
+        .rock:active{transform:scale(.85)}
+        .monster{width:120px;height:120px;background:radial-gradient(circle,#8b0000,#4a0000);border-radius:50%;margin:20px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;animation:shake .5s infinite;box-shadow:0 0 30px red}
+        @keyframes shake{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+        .alert{color:#ff4444;font-size:14px;animation:blink 1s infinite}
+        @keyframes blink{50%{opacity:.3}}
+        .panel{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px}
+        .btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px;cursor:pointer;text-align:center;font-size:13px}
+        .btn:active{background:rgba(255,215,0,.1)}
+        .btn .icon{font-size:24px}
+        .btn .cost{color:#ffd700;font-size:11px}
+        .btn .lvl{color:#aaa;font-size:10px}
+        .locked{opacity:.4;pointer-events:none}
+        .log{background:rgba(0,0,0,.3);padding:10px;font-size:11px;color:#aaa;max-height:100px;overflow-y:auto;margin:10px}
     </style>
 </head>
 <body>
-    <div class="level">Уровень <span id="level">1</span></div>
-    <div class="score" id="score">0</div>
-    <div class="coin" onclick="tap()">💰</div>
-    <button class="btn" onclick="boost()">⚡ БУСТ x2 (100 монет)</button>
+    <div class="header">
+        <div class="coins">🪙 <span id="coins">0</span></div>
+        <div class="stats">
+            <span>⛏️Кирка: <b id="pick_lvl">1</b></span>
+            <span>⚔️Меч: <b id="sword_lvl">1</b></span>
+            <span>🛡️Броня: <b id="armor_lvl">1</b></span>
+            <span>⭐Ур: <b id="lvl">1</b></span>
+        </div>
+    </div>
+
+    <div class="area" id="area">
+        <div id="rock_area">
+            <div class="rock" onclick="mine(event)">💎</div>
+            <div id="ore_name" style="color:#aaa">Каменная руда</div>
+            <div id="ore_hp" style="font-size:12px;color:#666">Прочность: 1/1</div>
+        </div>
+        <div id="monster_area" style="display:none">
+            <div class="monster" onclick="attack(event)">👹</div>
+            <div class="alert">⚡ МОНСТР!</div>
+            <div id="monster_name" style="color:#ff6666">Крыса</div>
+            <div id="monster_hp" style="font-size:12px">❤️ 3/3</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="btn" onclick="upgrade('pick')">
+            <div class="icon">⛏️</div>Кирка
+            <div class="cost">💰<span id="cost_pick">25</span></div>
+            <div class="lvl">Ур.<span id="lvl_pick">1</span></div>
+        </div>
+        <div class="btn" onclick="upgrade('sword')">
+            <div class="icon">⚔️</div>Меч
+            <div class="cost">💰<span id="cost_sword">25</span></div>
+            <div class="lvl">Ур.<span id="lvl_sword">1</span></div>
+        </div>
+        <div class="btn" onclick="upgrade('armor')">
+            <div class="icon">🛡️</div>Броня
+            <div class="cost">💰<span id="cost_armor">25</span></div>
+            <div class="lvl">Ур.<span id="lvl_armor">1</span></div>
+        </div>
+    </div>
+
+    <div class="log" id="log">🗒️ Жми на руду чтобы добывать...</div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        const tg = window.Telegram.WebApp; tg.expand();
         
-        let score = 0;
-        let level = 1;
-        let multiplier = 1;
-        let boostActive = false;
+        let coins = 0, lvl = 1, exp = 0, expNeed = 20;
+        let pick = 1, sword = 1, armor = 1;
+        let cost_pick = 25, cost_sword = 25, cost_armor = 25;
+        let monsterActive = false, monsterHP = 0, monsterMaxHP = 0, monsterReward = 0, monsterName = '';
+        let oreHP = 1, oreMaxHP = 1, oreName = 'Каменная руда', oreReward = 1;
 
-        function tap() {
-            score += multiplier;
-            document.getElementById('score').textContent = score;
-            if (score >= level * 50) {
-                level++;
-                document.getElementById('level').textContent = level;
-                multiplier++;
-            }
-            document.getElementById('score').style.transform = 'scale(1.1)';
-            setTimeout(() => document.getElementById('score').style.transform = 'scale(1)', 100);
+        const ores = [
+            {name:'Каменная руда',emoji:'🪨',minLvl:1,hp:1,gold:1},
+            {name:'Медная руда',emoji:'🟤',minLvl:3,hp:3,gold:5},
+            {name:'Железная руда',emoji:'⚙️',minLvl:6,hp:6,gold:15},
+            {name:'Золотая руда',emoji:'✨',minLvl:10,hp:12,gold:40},
+            {name:'Алмазная руда',emoji:'💠',minLvl:15,hp:25,gold:100},
+            {name:'Мифриловая руда',emoji:'🔮',minLvl:22,hp:50,gold:300},
+            {name:'Адамантит',emoji:'💎',minLvl:30,hp:100,gold:1000}
+        ];
+
+        const monsters = [
+            {name:'Крыса',emoji:'🐀',minLvl:1,hp:3,reward:10},
+            {name:'Слизень',emoji:'🟢',minLvl:3,hp:8,reward:30},
+            {name:'Гоблин',emoji:'👺',minLvl:6,hp:20,reward:80},
+            {name:'Скелет',emoji:'💀',minLvl:10,hp:50,reward:200},
+            {name:'Тролль',emoji:'👹',minLvl:15,hp:120,reward:500},
+            {name:'Демон',emoji:'😈',minLvl:22,hp:300,reward:1500},
+            {name:'Дракон',emoji:'🐉',minLvl:30,hp:800,reward:5000}
+        ];
+
+        function getOre(){
+            for(let i=ores.length-1;i>=0;i--) if(lvl>=ores[i].minLvl) return ores[i];
+            return ores[0];
         }
 
-        function boost() {
-            if (score >= 100 && !boostActive) {
-                score -= 100;
-                boostActive = true;
-                multiplier *= 2;
-                document.getElementById('score').textContent = score;
-                setTimeout(() => { multiplier /= 2; boostActive = false; }, 10000);
+        function spawnOre(){
+            let o = getOre();
+            oreName = o.name;
+            oreMaxHP = o.hp;
+            oreHP = oreMaxHP;
+            oreReward = o.gold;
+            document.getElementById('ore_name').textContent = o.emoji+' '+oreName;
+            document.getElementById('ore_hp').textContent = 'Прочность: '+oreHP+'/'+oreMaxHP;
+            document.getElementById('rock_area').style.display = 'block';
+            document.getElementById('monster_area').style.display = 'none';
+            monsterActive = false;
+        }
+
+        function spawnMonster(){
+            let available = monsters.filter(m=>lvl>=m.minLvl);
+            if(available.length===0) return;
+            let m = available[Math.floor(Math.random()*available.length)];
+            monsterName = m.name;
+            monsterMaxHP = m.hp;
+            monsterHP = monsterMaxHP;
+            monsterReward = m.reward;
+            document.getElementById('monster_name').textContent = m.emoji+' '+monsterName;
+            document.getElementById('monster_hp').textContent = '❤️ '+monsterHP+'/'+monsterMaxHP;
+            document.getElementById('rock_area').style.display = 'none';
+            document.getElementById('monster_area').style.display = 'block';
+            monsterActive = true;
+            addLog('⚡ Появился '+monsterName+'!');
+        }
+
+        function mine(e){
+            if(monsterActive) return;
+            oreHP -= pick;
+            document.getElementById('ore_hp').textContent = 'Прочность: '+Math.max(0,oreHP)+'/'+oreMaxHP;
+            if(oreHP <= 0){
+                coins += oreReward;
+                addLog('⛏️ Добыто '+oreName+': +'+oreReward+'💰');
+                gainExp(oreReward);
+                spawnOre();
+                checkMonsterSpawn();
+            }
+            updateUI();
+        }
+
+        function attack(e){
+            if(!monsterActive) return;
+            let dmg = sword;
+            monsterHP -= dmg;
+            document.getElementById('monster_hp').textContent = '❤️ '+Math.max(0,monsterHP)+'/'+monsterMaxHP;
+            if(monsterHP <= 0){
+                coins += monsterReward;
+                addLog('⚔️ Убит '+monsterName+': +'+monsterReward+'💰');
+                gainExp(monsterReward*2);
+                spawnOre();
+            }
+            updateUI();
+        }
+
+        function checkMonsterSpawn(){
+            let chance = Math.min(0.3, 0.05 + lvl*0.01);
+            if(Math.random() < chance && !monsterActive) spawnMonster();
+        }
+
+        function gainExp(amt){
+            exp += amt;
+            while(exp >= expNeed){
+                exp -= expNeed;
+                lvl++;
+                expNeed = Math.floor(expNeed*1.4);
+                addLog('⭐ Уровень '+lvl+'! Новая руда доступна.');
+                spawnOre();
             }
         }
 
-        setInterval(() => {
-            tg.sendData(JSON.stringify({score: score, level: level}));
-        }, 3000);
+        function upgrade(type){
+            let cost = type==='pick' ? cost_pick : type==='sword' ? cost_sword : cost_armor;
+            if(coins < cost) return;
+            coins -= cost;
+            if(type==='pick'){ pick++; cost_pick=Math.floor(cost_pick*1.6); }
+            if(type==='sword'){ sword++; cost_sword=Math.floor(cost_sword*1.6); }
+            if(type==='armor'){ armor++; cost_armor=Math.floor(cost_armor*1.6); }
+            addLog('🔧 '+(type==='pick'?'Кирка':type==='sword'?'Меч':'Броня')+' улучшена!');
+            updateUI();
+        }
+
+        function updateUI(){
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('pick_lvl').textContent = pick;
+            document.getElementById('sword_lvl').textContent = sword;
+            document.getElementById('armor_lvl').textContent = armor;
+            document.getElementById('lvl').textContent = lvl;
+            document.getElementById('cost_pick').textContent = cost_pick;
+            document.getElementById('cost_sword').textContent = cost_sword;
+            document.getElementById('cost_armor').textContent = cost_armor;
+            document.getElementById('lvl_pick').textContent = pick;
+            document.getElementById('lvl_sword').textContent = sword;
+            document.getElementById('lvl_armor').textContent = armor;
+        }
+
+        function addLog(msg){
+            let log = document.getElementById('log');
+            log.innerHTML = msg + '<br>' + log.innerHTML;
+            if(log.children.length > 15) log.removeChild(log.lastChild);
+        }
+
+        spawnOre();
+        updateUI();
     </script>
 </body>
 </html>
