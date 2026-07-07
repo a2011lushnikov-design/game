@@ -2,217 +2,176 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шахтёр-RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dark Miner RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:linear-gradient(180deg,#0d0d0d,#1a1a2e);color:#fff;font-family:Arial;min-height:100vh;overflow-y:auto}
-        .header{background:rgba(0,0,0,0.5);padding:10px;position:sticky;top:0;z-index:10}
-        .coins{font-size:28px;color:#ffd700;font-weight:bold}
-        .stats{display:flex;justify-content:space-around;font-size:12px;color:#aaa;margin-top:5px}
-        .area{text-align:center;padding:15px;min-height:250px}
-        .rock{width:100px;height:100px;margin:30px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;transition:0.1s;user-select:none}
-        .rock:active{transform:scale(.85)}
-        .monster{width:120px;height:120px;background:radial-gradient(circle,#8b0000,#4a0000);border-radius:50%;margin:20px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;animation:shake .5s infinite;box-shadow:0 0 30px red}
-        @keyframes shake{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
-        .alert{color:#ff4444;font-size:14px;animation:blink 1s infinite}
-        @keyframes blink{50%{opacity:.3}}
-        .panel{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px}
-        .btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px;cursor:pointer;text-align:center;font-size:13px}
-        .btn:active{background:rgba(255,215,0,.1)}
-        .btn .icon{font-size:24px}
-        .btn .cost{color:#ffd700;font-size:11px}
-        .btn .lvl{color:#aaa;font-size:10px}
-        .locked{opacity:.4;pointer-events:none}
-        .log{background:rgba(0,0,0,.3);padding:10px;font-size:11px;color:#aaa;max-height:100px;overflow-y:auto;margin:10px}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none}
+        *:focus,*:active{outline:none}
+        body{background:radial-gradient(ellipse at center,#1a0a0a 0%,#000 100%);color:#ccc;font-family:monospace;min-height:100vh;overflow-y:auto;user-select:none;-webkit-user-select:none;font-size:9px;line-height:1.6}
+        .header{background:linear-gradient(180deg,rgba(30,5,5,0.95),rgba(10,0,0,0.9));padding:10px;position:sticky;top:0;z-index:10;border-bottom:2px solid #ff4444;box-shadow:0 4px 20px rgba(255,0,0,.2)}
+        .coins{font-size:14px;color:#ffd700;text-shadow:0 0 10px #ffd700;text-align:center}
+        .hpbar{width:100%;height:10px;background:#1a0000;border-radius:5px;margin-top:6px;border:1px solid #330000}
+        .hpfill{height:100%;background:linear-gradient(90deg,#ff2222,#ff6666,#ff2222);border-radius:5px;transition:width .5s;box-shadow:0 0 10px #ff0000}
+        .hptext{text-align:center;color:#ff4444;margin-top:3px;font-size:7px}
+        .stats{display:flex;justify-content:space-around;margin-top:6px;font-size:7px;color:#aa6666}
+        .stats span{padding:2px 6px;background:rgba(255,0,0,.1);border-radius:4px}
+        .area{text-align:center;padding:15px;min-height:260px;position:relative}
+        .rock{width:100px;height:100px;margin:15px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite;transition:transform .15s;filter:drop-shadow(0 0 15px rgba(255,255,255,.3))}
+        .rock:active{transform:scale(.8);animation:none}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .monster{width:110px;height:110px;margin:15px auto;cursor:pointer;font-size:55px;display:flex;align-items:center;justify-content:center;animation:shake .25s infinite;filter:drop-shadow(0 0 25px red)}
+        @keyframes shake{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-4px) rotate(-2deg)}75%{transform:translateX(4px) rotate(2deg)}}
+        .alert{color:#ff3333;font-size:10px;animation:blink .6s infinite;text-shadow:0 0 15px red}
+        @keyframes blink{50%{opacity:.4}}
+        .panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px}
+        .btn{background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #333;border-radius:8px;padding:6px;cursor:pointer;text-align:center;font-size:7px;color:#aaa;transition:all .2s;position:relative}
+        .btn:active{background:#1a0a00;border-color:#ff6600;transform:scale(.96)}
+        .btn .icon{font-size:22px;display:block;margin-bottom:2px}
+        .btn .cost{color:#ffaa00;font-size:7px;margin-top:2px}
+        .btn .lvl{color:#555;font-size:6px}
+        .btn .skin{font-size:9px;color:#777;margin-top:1px}
+        .log{background:rgba(0,0,0,.6);padding:6px;font-size:7px;color:#666;max-height:70px;overflow-y:auto;margin:6px;border-radius:6px;border:1px solid #1a1a1a}
+        .log .good{color:#44cc44}.log .bad{color:#ff4444}.log .gold{color:#ffd700}.log .rare{color:#cc88ff}
+        .float-text{position:fixed;pointer-events:none;font-weight:bold;z-index:999;animation:floatUp .8s forwards}
+        @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+        .screen-shake{animation:screenShake .3s}
+        @keyframes screenShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+        .dead-screen{text-align:center;padding:30px}
+        .dead-screen .skull{font-size:60px;animation:dropIn .5s}
+        @keyframes dropIn{0%{transform:translateY(-100px);opacity:0}60%{transform:translateY(10px)}100%{transform:translateY(0);opacity:1}}
+        button{background:linear-gradient(180deg,#cc0000,#880000);color:#fff;border:none;padding:10px 20px;border-radius:20px;font-family:monospace;font-size:9px;cursor:pointer;box-shadow:0 0 20px rgba(255,0,0,.4);animation:pulse 1.5s infinite}
+        button:active{transform:scale(.9)}
     </style>
 </head>
-<body>
+<body id="body">
     <div class="header">
         <div class="coins">🪙 <span id="coins">0</span></div>
+        <div class="hpbar"><div class="hpfill" id="hpfill" style="width:100%"></div></div>
+        <div class="hptext">❤️ <span id="hp">100</span>/100</div>
         <div class="stats">
-            <span>⛏️Кирка: <b id="pick_lvl">1</b></span>
-            <span>⚔️Меч: <b id="sword_lvl">1</b></span>
-            <span>🛡️Броня: <b id="armor_lvl">1</b></span>
-            <span>⭐Ур: <b id="lvl">1</b></span>
+            <span id="skin_pick">⛏️<b id="pick_lvl">1</b></span>
+            <span id="skin_sword">⚔️<b id="sword_lvl">1</b></span>
+            <span id="skin_armor">🛡️<b id="armor_lvl">1</b></span>
+            <span>⭐<b id="lvl">1</b></span>
         </div>
     </div>
 
-    <div class="area" id="area">
-        <div id="rock_area">
-            <div class="rock" onclick="mine(event)">💎</div>
-            <div id="ore_name" style="color:#aaa">Каменная руда</div>
-            <div id="ore_hp" style="font-size:12px;color:#666">Прочность: 1/1</div>
-        </div>
-        <div id="monster_area" style="display:none">
-            <div class="monster" onclick="attack(event)">👹</div>
-            <div class="alert">⚡ МОНСТР!</div>
-            <div id="monster_name" style="color:#ff6666">Крыса</div>
-            <div id="monster_hp" style="font-size:12px">❤️ 3/3</div>
-        </div>
+    <div class="area">
+        <div id="rock_area"><div class="rock" onclick="mine(event)">💎</div><div id="ore_name" style="color:#888">Каменная руда</div><div id="ore_hp">Прочность: 2/2</div></div>
+        <div id="monster_area" style="display:none"><div class="monster" onclick="attack(event)">👹</div><div class="alert">⚡ МОНСТР!</div><div id="monster_name" style="color:#ff5555">Крыса</div><div id="monster_hp">❤️ 5/5</div></div>
+        <div id="dead_area" style="display:none" class="dead-screen"><div class="skull">💀</div><div style="color:#ff0000;font-size:12px;margin:15px">ВЫ ПОГИБЛИ</div><div style="color:#aaa;margin:10px;font-size:7px">-90% монет</div><button onclick="revive()">ВОСКРЕСНУТЬ</button></div>
     </div>
 
     <div class="panel">
-        <div class="btn" onclick="upgrade('pick')">
-            <div class="icon">⛏️</div>Кирка
-            <div class="cost">💰<span id="cost_pick">25</span></div>
-            <div class="lvl">Ур.<span id="lvl_pick">1</span></div>
-        </div>
-        <div class="btn" onclick="upgrade('sword')">
-            <div class="icon">⚔️</div>Меч
-            <div class="cost">💰<span id="cost_sword">25</span></div>
-            <div class="lvl">Ур.<span id="lvl_sword">1</span></div>
-        </div>
-        <div class="btn" onclick="upgrade('armor')">
-            <div class="icon">🛡️</div>Броня
-            <div class="cost">💰<span id="cost_armor">25</span></div>
-            <div class="lvl">Ур.<span id="lvl_armor">1</span></div>
-        </div>
+        <div class="btn" onclick="upgrade('pick')"><span class="icon" id="icon_pick">⛏️</span>Кирка<div class="cost">💰<span id="cost_pick">50</span></div><div class="lvl">Ур.<span id="lvl_pick">1</span></div><div class="skin" id="skinname_pick">Базовая</div></div>
+        <div class="btn" onclick="upgrade('sword')"><span class="icon" id="icon_sword">⚔️</span>Меч<div class="cost">💰<span id="cost_sword">75</span></div><div class="lvl">Ур.<span id="lvl_sword">1</span></div><div class="skin" id="skinname_sword">Базовый</div></div>
+        <div class="btn" onclick="upgrade('armor')"><span class="icon" id="icon_armor">🛡️</span>Броня<div class="cost">💰<span id="cost_armor">60</span></div><div class="lvl">Ур.<span id="lvl_armor">1</span></div><div class="skin" id="skinname_armor">Базовая</div></div>
     </div>
 
-    <div class="log" id="log">🗒️ Жми на руду чтобы добывать...</div>
+    <div class="log" id="log">🗒️ <span class="good">Ты спустился в шахту...</span></div>
 
     <script>
-        const tg = window.Telegram.WebApp; tg.expand();
+        const tg=window.Telegram.WebApp;tg.expand();
+        let coins=0,lvl=1,exp=0,expNeed=50;
+        let pick=1,sword=1,armor=1;
+        let cost_pick=50,cost_sword=75,cost_armor=60;
+        let hp=100,maxHP=100;
+        let dead=false,monsterActive=false;
+        let monsterHP,monsterMaxHP,monsterReward,monsterName,monsterDmg,monsterInterval;
+        let oreHP,oreMaxHP,oreName,oreReward;
+
+        // Скины на кирку
+        const pickSkins=[
+            {lvl:1,icon:'⛏️',name:'Базовая'},
+            {lvl:4,icon:'🔨',name:'Каменная'},
+            {lvl:8,icon:'🪓',name:'Железная'},
+            {lvl:14,icon:'⚒️',name:'Золотая'},
+            {lvl:22,icon:'💠',name:'Алмазная'},
+            {lvl:32,icon:'🔮',name:'Мифриловая'},
+            {lvl:44,icon:'⚡',name:'Адамантитовая'}
+        ];
+        const swordSkins=[
+            {lvl:1,icon:'🔪',name:'Нож'},
+            {lvl:5,icon:'🗡️',name:'Кинжал'},
+            {lvl:10,icon:'⚔️',name:'Меч'},
+            {lvl:16,icon:'🔱',name:'Трезубец'},
+            {lvl:24,icon:'💫',name:'Экскалибур'},
+            {lvl:35,icon:'🔥',name:'Огненный'},
+            {lvl:48,icon:'👑',name:'Королевский'}
+        ];
+        const armorSkins=[
+            {lvl:1,icon:'🛡️',name:'Деревянный'},
+            {lvl:5,icon:'🔰',name:'Кожаный'},
+            {lvl:10,icon:'🛡️',name:'Железный'},
+            {lvl:17,icon:'💠',name:'Алмазный'},
+            {lvl:26,icon:'🔮',name:'Мифриловый'},
+            {lvl:38,icon:'⚜️',name:'Золотой'},
+            {lvl:50,icon:'👑',name:'Божественный'}
+        ];
+
+        const ores=[{n:'Каменная',e:'🪨',l:1,hp:2,g:1},{n:'Медная',e:'🟤',l:4,hp:5,g:3},{n:'Железная',e:'⚙️',l:8,hp:12,g:8},{n:'Золотая',e:'✨',l:14,hp:25,g:20},{n:'Алмазная',e:'💠',l:22,hp:50,g:60},{n:'Мифрил',e:'🔮',l:30,hp:90,g:180},{n:'Адамантит',e:'💎',l:40,hp:180,g:600}];
         
-        let coins = 0, lvl = 1, exp = 0, expNeed = 20;
-        let pick = 1, sword = 1, armor = 1;
-        let cost_pick = 25, cost_sword = 25, cost_armor = 25;
-        let monsterActive = false, monsterHP = 0, monsterMaxHP = 0, monsterReward = 0, monsterName = '';
-        let oreHP = 1, oreMaxHP = 1, oreName = 'Каменная руда', oreReward = 1;
-
-        const ores = [
-            {name:'Каменная руда',emoji:'🪨',minLvl:1,hp:1,gold:1},
-            {name:'Медная руда',emoji:'🟤',minLvl:3,hp:3,gold:5},
-            {name:'Железная руда',emoji:'⚙️',minLvl:6,hp:6,gold:15},
-            {name:'Золотая руда',emoji:'✨',minLvl:10,hp:12,gold:40},
-            {name:'Алмазная руда',emoji:'💠',minLvl:15,hp:25,gold:100},
-            {name:'Мифриловая руда',emoji:'🔮',minLvl:22,hp:50,gold:300},
-            {name:'Адамантит',emoji:'💎',minLvl:30,hp:100,gold:1000}
+        const monsters=[
+            {n:'Крыса',e:'🐀',l:1,hp:5,dmg:2,r:5},
+            {n:'Слизень',e:'🟢',l:3,hp:12,dmg:4,r:14},
+            {n:'Паук',e:'🕷️',l:5,hp:18,dmg:6,r:22},
+            {n:'Гоблин',e:'👺',l:8,hp:30,dmg:10,r:50},
+            {n:'Волк',e:'🐺',l:10,hp:40,dmg:12,r:70},
+            {n:'Скелет',e:'💀',l:13,hp:55,dmg:16,r:110},
+            {n:'Зомби',e:'🧟',l:16,hp:75,dmg:20,r:160},
+            {n:'Тролль',e:'👹',l:20,hp:120,dmg:28,r:350},
+            {n:'Вампир',e:'🧛',l:23,hp:160,dmg:35,r:500},
+            {n:'Голем',e:'🗿',l:27,hp:220,dmg:42,r:800},
+            {n:'Демон',e:'😈',l:30,hp:300,dmg:50,r:1200},
+            {n:'Лавовый',e:'🌋',l:34,hp:400,dmg:60,r:1800},
+            {n:'Ледяной',e:'❄️',l:37,hp:500,dmg:68,r:2500},
+            {n:'Теневой',e:'👤',l:40,hp:650,dmg:78,r:3500},
+            {n:'ДРАКОН',e:'🐉',l:44,hp:900,dmg:95,r:5000},
+            {n:'ДРЕВНИЙ',e:'👁️',l:50,hp:1400,dmg:120,r:10000}
         ];
 
-        const monsters = [
-            {name:'Крыса',emoji:'🐀',minLvl:1,hp:3,reward:10},
-            {name:'Слизень',emoji:'🟢',minLvl:3,hp:8,reward:30},
-            {name:'Гоблин',emoji:'👺',minLvl:6,hp:20,reward:80},
-            {name:'Скелет',emoji:'💀',minLvl:10,hp:50,reward:200},
-            {name:'Тролль',emoji:'👹',minLvl:15,hp:120,reward:500},
-            {name:'Демон',emoji:'😈',minLvl:22,hp:300,reward:1500},
-            {name:'Дракон',emoji:'🐉',minLvl:30,hp:800,reward:5000}
-        ];
-
-        function getOre(){
-            for(let i=ores.length-1;i>=0;i--) if(lvl>=ores[i].minLvl) return ores[i];
-            return ores[0];
+        function getSkin(skins,lvl){let s=skins[0];for(let i=0;i<skins.length;i++)if(lvl>=skins[i].lvl)s=skins[i];return s}
+        
+        function getOre(){for(let i=ores.length-1;i>=0;i--)if(lvl>=ores[i].l)return ores[i];return ores[0]}
+        
+        function spawnOre(){clearInterval(monsterInterval);monsterInterval=null;monsterActive=false;let o=getOre();oreName=o.n;oreMaxHP=o.hp;oreHP=oreMaxHP;oreReward=o.g;document.getElementById('ore_name').textContent=o.e+' '+oreName;document.getElementById('ore_hp').textContent='Прочность: '+oreHP+'/'+oreMaxHP;document.getElementById('rock_area').style.display='block';document.getElementById('monster_area').style.display='none';document.getElementById('dead_area').style.display='none'}
+        
+        function spawnMonster(){let a=monsters.filter(m=>lvl>=m.l);if(!a.length)return;let m=a[Math.floor(Math.random()*a.length)];monsterName=m.n;monsterMaxHP=m.hp;monsterHP=monsterMaxHP;monsterReward=m.r;monsterDmg=Math.max(1,m.dmg-armor+1);document.getElementById('monster_name').textContent=m.e+' '+monsterName;document.getElementById('monster_hp').textContent='❤️ '+monsterHP+'/'+monsterMaxHP;document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='block';monsterActive=true;addLog('bad','⚡ '+monsterName+'!');if(monsterInterval)clearInterval(monsterInterval);monsterInterval=setInterval(monsterTick,1000)}
+        
+        function monsterTick(){if(!monsterActive||dead)return;hp-=monsterDmg;updateHP();if(hp<=0)die()}
+        
+        function mine(e){if(monsterActive||dead)return;oreHP-=pick;document.getElementById('ore_hp').textContent='Прочность: '+Math.max(0,oreHP)+'/'+oreMaxHP;floatText(e,'-'+pick,'#fff');if(oreHP<=0){let bonus=Math.random()<.15?oreReward*2:oreReward;let isCrit=bonus>oreReward;coins+=bonus;addLog('gold','⛏️ '+oreName+': +'+bonus+'💰'+(isCrit?' 💥КРИТ!':''));gainExp(Math.floor(oreReward/2));spawnOre();if(Math.random()<Math.min(.35,.05+lvl*.015))spawnMonster()}updateUI()}
+        
+        function attack(e){if(!monsterActive||dead)return;let dmg=sword;let isCrit=Math.random()<.2;if(isCrit)dmg*=2;monsterHP-=dmg;floatText(e,'-'+dmg,isCrit?'#ff0':'#ff8888');document.getElementById('monster_hp').textContent='❤️ '+Math.max(0,monsterHP)+'/'+monsterMaxHP;if(isCrit)document.getElementById('body').classList.add('screen-shake');setTimeout(()=>document.getElementById('body').classList.remove('screen-shake'),300);if(monsterHP<=0){coins+=monsterReward;addLog('good','⚔️ '+monsterName+': +'+monsterReward+'💰');gainExp(Math.floor(monsterReward/3));spawnOre()}updateUI()}
+        
+        function gainExp(a){exp+=a;while(exp>=expNeed){exp-=expNeed;lvl++;expNeed=Math.floor(expNeed*1.5);maxHP+=15;hp=Math.min(hp+30,maxHP);addLog('good','⭐ УРОВЕНЬ '+lvl+'! HP+15');spawnOre()}updateUI()}
+        
+        function die(){dead=true;clearInterval(monsterInterval);coins=Math.floor(coins*0.1);document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='none';document.getElementById('dead_area').style.display='block';addLog('bad','💀 Вы погибли! -90% монет.');updateUI()}
+        
+        function revive(){dead=false;hp=maxHP;updateHP();spawnOre();addLog('good','✨ Воскресли.');updateUI()}
+        
+        function upgrade(t){let c=t==='pick'?cost_pick:t==='sword'?cost_sword:cost_armor;if(coins<c||dead)return;coins-=c;if(t==='pick'){pick++;cost_pick=Math.floor(cost_pick*1.7)}if(t==='sword'){sword++;cost_sword=Math.floor(cost_sword*1.7)}if(t==='armor'){armor++;cost_armor=Math.floor(cost_armor*1.7)}addLog('gold','🔧 '+(t==='pick'?'Кирка':t==='sword'?'Меч':'Броня')+' улучшена!');updateSkins();updateUI()}
+        
+        function updateSkins(){
+            let ps=getSkin(pickSkins,pick),ss=getSkin(swordSkins,sword),as=getSkin(armorSkins,armor);
+            document.getElementById('icon_pick').textContent=ps.icon;document.getElementById('skinname_pick').textContent=ps.name;
+            document.getElementById('icon_sword').textContent=ss.icon;document.getElementById('skinname_sword').textContent=ss.name;
+            document.getElementById('icon_armor').textContent=as.icon;document.getElementById('skinname_armor').textContent=as.name;
+            document.getElementById('skin_pick').innerHTML=ps.icon+' <b id="pick_lvl">'+pick+'</b>';
+            document.getElementById('skin_sword').innerHTML=ss.icon+' <b id="sword_lvl">'+sword+'</b>';
+            document.getElementById('skin_armor').innerHTML=as.icon+' <b id="armor_lvl">'+armor+'</b>';
         }
+        
+        function floatText(e,txt,color){let d=document.createElement('div');d.className='float-text';d.textContent=txt;d.style.color=color;d.style.left=e.clientX+'px';d.style.top=(e.clientY-20)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),800)}
+        
+        function updateHP(){let pct=Math.max(0,hp)/maxHP*100;document.getElementById('hpfill').style.width=pct+'%';document.getElementById('hp').textContent=Math.max(0,hp)}
+        
+        function updateUI(){document.getElementById('coins').textContent=coins;document.getElementById('pick_lvl').textContent=pick;document.getElementById('sword_lvl').textContent=sword;document.getElementById('armor_lvl').textContent=armor;document.getElementById('lvl').textContent=lvl;document.getElementById('cost_pick').textContent=cost_pick;document.getElementById('cost_sword').textContent=cost_sword;document.getElementById('cost_armor').textContent=cost_armor;document.getElementById('lvl_pick').textContent=pick;document.getElementById('lvl_sword').textContent=sword;document.getElementById('lvl_armor').textContent=armor;updateHP()}
+        
+        function addLog(cls,msg){let l=document.getElementById('log');l.innerHTML='<span class="'+cls+'">'+msg+'</span><br>'+l.innerHTML;if(l.children.length>25)l.removeChild(l.lastChild)}
 
-        function spawnOre(){
-            let o = getOre();
-            oreName = o.name;
-            oreMaxHP = o.hp;
-            oreHP = oreMaxHP;
-            oreReward = o.gold;
-            document.getElementById('ore_name').textContent = o.emoji+' '+oreName;
-            document.getElementById('ore_hp').textContent = 'Прочность: '+oreHP+'/'+oreMaxHP;
-            document.getElementById('rock_area').style.display = 'block';
-            document.getElementById('monster_area').style.display = 'none';
-            monsterActive = false;
-        }
-
-        function spawnMonster(){
-            let available = monsters.filter(m=>lvl>=m.minLvl);
-            if(available.length===0) return;
-            let m = available[Math.floor(Math.random()*available.length)];
-            monsterName = m.name;
-            monsterMaxHP = m.hp;
-            monsterHP = monsterMaxHP;
-            monsterReward = m.reward;
-            document.getElementById('monster_name').textContent = m.emoji+' '+monsterName;
-            document.getElementById('monster_hp').textContent = '❤️ '+monsterHP+'/'+monsterMaxHP;
-            document.getElementById('rock_area').style.display = 'none';
-            document.getElementById('monster_area').style.display = 'block';
-            monsterActive = true;
-            addLog('⚡ Появился '+monsterName+'!');
-        }
-
-        function mine(e){
-            if(monsterActive) return;
-            oreHP -= pick;
-            document.getElementById('ore_hp').textContent = 'Прочность: '+Math.max(0,oreHP)+'/'+oreMaxHP;
-            if(oreHP <= 0){
-                coins += oreReward;
-                addLog('⛏️ Добыто '+oreName+': +'+oreReward+'💰');
-                gainExp(oreReward);
-                spawnOre();
-                checkMonsterSpawn();
-            }
-            updateUI();
-        }
-
-        function attack(e){
-            if(!monsterActive) return;
-            let dmg = sword;
-            monsterHP -= dmg;
-            document.getElementById('monster_hp').textContent = '❤️ '+Math.max(0,monsterHP)+'/'+monsterMaxHP;
-            if(monsterHP <= 0){
-                coins += monsterReward;
-                addLog('⚔️ Убит '+monsterName+': +'+monsterReward+'💰');
-                gainExp(monsterReward*2);
-                spawnOre();
-            }
-            updateUI();
-        }
-
-        function checkMonsterSpawn(){
-            let chance = Math.min(0.3, 0.05 + lvl*0.01);
-            if(Math.random() < chance && !monsterActive) spawnMonster();
-        }
-
-        function gainExp(amt){
-            exp += amt;
-            while(exp >= expNeed){
-                exp -= expNeed;
-                lvl++;
-                expNeed = Math.floor(expNeed*1.4);
-                addLog('⭐ Уровень '+lvl+'! Новая руда доступна.');
-                spawnOre();
-            }
-        }
-
-        function upgrade(type){
-            let cost = type==='pick' ? cost_pick : type==='sword' ? cost_sword : cost_armor;
-            if(coins < cost) return;
-            coins -= cost;
-            if(type==='pick'){ pick++; cost_pick=Math.floor(cost_pick*1.6); }
-            if(type==='sword'){ sword++; cost_sword=Math.floor(cost_sword*1.6); }
-            if(type==='armor'){ armor++; cost_armor=Math.floor(cost_armor*1.6); }
-            addLog('🔧 '+(type==='pick'?'Кирка':type==='sword'?'Меч':'Броня')+' улучшена!');
-            updateUI();
-        }
-
-        function updateUI(){
-            document.getElementById('coins').textContent = coins;
-            document.getElementById('pick_lvl').textContent = pick;
-            document.getElementById('sword_lvl').textContent = sword;
-            document.getElementById('armor_lvl').textContent = armor;
-            document.getElementById('lvl').textContent = lvl;
-            document.getElementById('cost_pick').textContent = cost_pick;
-            document.getElementById('cost_sword').textContent = cost_sword;
-            document.getElementById('cost_armor').textContent = cost_armor;
-            document.getElementById('lvl_pick').textContent = pick;
-            document.getElementById('lvl_sword').textContent = sword;
-            document.getElementById('lvl_armor').textContent = armor;
-        }
-
-        function addLog(msg){
-            let log = document.getElementById('log');
-            log.innerHTML = msg + '<br>' + log.innerHTML;
-            if(log.children.length > 15) log.removeChild(log.lastChild);
-        }
-
-        spawnOre();
-        updateUI();
+        spawnOre();updateSkins();updateUI();
     </script>
 </body>
 </html>
