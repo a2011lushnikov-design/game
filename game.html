@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тапалка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1a1a2e; color: white; text-align: center; font-family: Arial; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score { font-size: 48px; font-weight: bold; margin: 20px; }
+        .coin { width: 150px; height: 150px; background: radial-gradient(circle, #ffd700, #ff8c00); border-radius: 50%; margin: 30px auto; cursor: pointer; box-shadow: 0 0 40px rgba(255,215,0,0.5); transition: transform 0.1s; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+        .coin:active { transform: scale(0.9); }
+        .level { font-size: 20px; margin: 10px; color: #aaa; }
+        .btn { background: #ffd700; color: #1a1a2e; border: none; padding: 12px 30px; border-radius: 25px; font-size: 18px; font-weight: bold; margin: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="level">Уровень <span id="level">1</span></div>
+    <div class="score" id="score">0</div>
+    <div class="coin" onclick="tap()">💰</div>
+    <button class="btn" onclick="boost()">⚡ БУСТ x2 (100 монет)</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let score = 0;
+        let level = 1;
+        let multiplier = 1;
+        let boostActive = false;
+
+        function tap() {
+            score += multiplier;
+            document.getElementById('score').textContent = score;
+            if (score >= level * 50) {
+                level++;
+                document.getElementById('level').textContent = level;
+                multiplier++;
+            }
+            document.getElementById('score').style.transform = 'scale(1.1)';
+            setTimeout(() => document.getElementById('score').style.transform = 'scale(1)', 100);
+        }
+
+        function boost() {
+            if (score >= 100 && !boostActive) {
+                score -= 100;
+                boostActive = true;
+                multiplier *= 2;
+                document.getElementById('score').textContent = score;
+                setTimeout(() => { multiplier /= 2; boostActive = false; }, 10000);
+            }
+        }
+
+        setInterval(() => {
+            tg.sendData(JSON.stringify({score: score, level: level}));
+        }, 3000);
+    </script>
+</body>
+</html>
