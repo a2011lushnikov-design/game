@@ -3,43 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tower Defense</title>
+    <title>Brawl Stars Mini</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        html,body{width:100%;height:100%;overflow:hidden;background:#0a0a12;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none}
+        html,body{width:100%;height:100%;overflow:hidden;background:#1a3a1a;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
         body{display:flex;flex-direction:column;align-items:center;justify-content:center}
-        #container{position:relative;width:100vw;height:100vw;max-width:500px;max-height:500px;margin:0 auto}
-        canvas{display:block;width:100%;height:100%;image-rendering:auto}
-        #ui-top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:8px 12px;pointer-events:none;z-index:10}
-        .badge{background:rgba(0,0,0,.7);color:#fff;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:bold;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:5px}
-        .badge.red{color:#ff5555}.badge.gold{color:#ffd700}.badge.blue{color:#88ccff}
-        #ui-bottom{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
-        .tower-btn{width:55px;height:55px;border-radius:14px;background:rgba(20,20,30,.85);border:2px solid rgba(255,255,255,.15);color:#fff;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-        .tower-btn:active{transform:scale(.92);border-color:#ffd700}
-        .tower-btn.selected{border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,.4);background:rgba(40,35,20,.9)}
-        .tower-btn .icon{font-size:22px;line-height:1}
-        .tower-btn .cost{font-size:10px;color:#ffaa00;margin-top:1px}
-        #overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:15px;backdrop-filter:blur(5px)}
+        #container{position:relative;width:100vw;height:100vw;max-width:500px;max-height:500px;margin:0 auto;background:#2b5e2b;border-radius:20px;overflow:hidden;box-shadow:0 0 30px rgba(0,200,0,.3)}
+        canvas{display:block;width:100%;height:100%}
+        #ui-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;gap:6px;flex-wrap:wrap}
+        .badge{background:rgba(0,0,0,.7);color:#fff;padding:5px 10px;border-radius:20px;font-size:13px;font-weight:bold;backdrop-filter:blur(6px);display:flex;align-items:center;gap:5px}
+        .badge.hp{color:#ff6b6b}.badge.coins{color:#ffd700}.badge.wave{color:#a0d2ff}
+        #overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:12px;backdrop-filter:blur(8px)}
         #overlay h1{font-size:28px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,.5)}
-        #overlay p{color:#aaa;font-size:14px}
-        .big-btn{background:linear-gradient(135deg,#cc8800,#ffaa00);color:#000;border:none;padding:14px 40px;border-radius:30px;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 6px 25px rgba(255,170,0,.3)}
-        .big-btn:active{transform:scale(.94)}
-        .big-btn.red{background:linear-gradient(135deg,#cc2222,#ff4444);box-shadow:0 6px 25px rgba(255,0,0,.3)}
+        #overlay p{color:#ccc;font-size:14px;text-align:center;padding:0 20px}
+        .big-btn{background:linear-gradient(135deg,#f0a500,#ffd000);color:#000;border:none;padding:12px 30px;border-radius:30px;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 5px 20px rgba(255,200,0,.4)}
+        .big-btn:active{transform:scale(.93)}
     </style>
 </head>
 <body>
     <div id="container">
         <canvas id="game"></canvas>
         <div id="ui-top">
-            <div class="badge red">❤️ <span id="lives">20</span></div>
-            <div class="badge gold">🪙 <span id="coins">100</span></div>
-            <div class="badge blue">🌊 <span id="wave">1</span></div>
+            <div class="badge hp">❤️ <span id="hp">100</span></div>
+            <div class="badge coins">🪙 <span id="score">0</span></div>
+            <div class="badge wave">🌊 <span id="wave">1</span></div>
         </div>
-        <div id="ui-bottom"></div>
         <div id="overlay">
-            <h1>🏰 TOWER DEFENSE</h1>
-            <p>Строй башни. Убивай врагов.</p>
+            <h1>⚔️ BRAWL STARS MINI</h1>
+            <p>Тапай по экрану — герой идёт туда.<br>Авто-атака ближайших врагов.<br>Собирай кристаллы, выживай!</p>
             <button class="big-btn" onclick="startGame()">ИГРАТЬ</button>
         </div>
     </div>
@@ -49,207 +41,291 @@
         const container=document.getElementById('container');
         const canvas=document.getElementById('game');
         const ctx=canvas.getContext('2d');
-        
-        let W,H,CELL,COLS,ROWS;
+
+        let W,H; // размеры canvas в пикселях
         function resize(){
             let size=Math.min(window.innerWidth,window.innerHeight,500);
             container.style.width=size+'px';container.style.height=size+'px';
             canvas.width=size;canvas.height=size;
-            W=size;H=size;CELL=Math.floor(W/10);COLS=10;ROWS=Math.floor(H/CELL);
+            W=size;H=size;
         }
         resize();window.addEventListener('resize',resize);
 
-        let grid=[],towers=[],enemies=[],bullets=[],particles=[],effects=[];
-        let lives=20,coins=150,wave=0,kills=0,spawnTimer=0,spawnCount=0,spawnMax=0;
-        let selectedTower=null,gameRunning=false,gameOver=false;
-        let spawnInterval=35,enemyIndex=0;
-        let path=[{x:0,y:3},{x:1,y:3},{x:1,y:6},{x:3,y:6},{x:3,y:3},{x:5,y:3},{x:5,y:7},{x:7,y:7},{x:7,y:4},{x:8,y:4},{x:8,y:1},{x:9,y:1}];
-        let waypoints=path.map(p=>({x:p.x*CELL+CELL/2,y:p.y*CELL+CELL/2}));
+        // Игровые переменные
+        let player={x:W/2,y:H/2,radius:W/20,speed:W/180,hp:100,maxHp:100,invincible:0};
+        let enemies=[],crystals=[],obstacles=[];
+        let score=0,wave=1,gameRunning=false,gameOver=false;
+        let targetPoint=null; // точка, куда идёт игрок
 
-        function initGrid(){
-            grid=[];for(let y=0;y<ROWS;y++){grid[y]=[];for(let x=0;x<COLS;x++)grid[y][x]=0}
-            path.forEach(p=>{if(p.y<ROWS&&p.x<COLS)grid[p.y][p.x]=1});
-        }
-
-        const towerDefs=[
-            {name:'Лучник',icon:'🏹',cost:25,dmg:15,range:3,speed:45,color:'#88ccff',bullet:'🔹'},
-            {name:'Ледяной',icon:'❄️',cost:45,dmg:8,range:2.8,speed:35,color:'#aaddff',bullet:'🔷',slow:.4},
-            {name:'Канонир',icon:'💣',cost:70,dmg:40,range:2.5,speed:80,color:'#ff8844',bullet:'💥',splash:1.5},
-            {name:'Маг',icon:'⚡',cost:130,dmg:25,range:3.5,speed:25,color:'#ff44ff',bullet:'✨',chain:3}
+        // Препятствия (кусты, камни)
+        const obsPositions=[
+            {x:0.15,y:0.2,w:0.08,h:0.08},{x:0.7,y:0.15,w:0.1,h:0.1},{x:0.4,y:0.5,w:0.12,h:0.12},
+            {x:0.2,y:0.7,w:0.09,h:0.09},{x:0.75,y:0.65,w:0.08,h:0.08},{x:0.55,y:0.8,w:0.11,h:0.11},
+            {x:0.85,y:0.4,w:0.07,h:0.07},{x:0.1,y:0.85,w:0.1,h:0.1}
         ];
 
-        class Tower{
-            constructor(x,y,type){
-                this.x=x*CELL+CELL/2;this.y=y*CELL+CELL/2;this.type=type;
-                this.def=towerDefs[type];this.cooldown=0;this.angle=0;this.scale=1;
-            }
-            update(){
-                if(this.cooldown>0){this.cooldown--;return}
-                let target=null,minDist=Infinity;
-                enemies.forEach(e=>{
-                    let d=Math.hypot(this.x-e.x,this.y-e.y);
-                    if(d<this.def.range*CELL&&d<minDist){minDist=d;target=e}
-                });
-                if(target){
-                    this.angle=Math.atan2(target.y-this.y,target.x-this.x);
-                    this.cooldown=this.def.speed;
-                    bullets.push(new Bullet(this.x,this.y,target,this.def));
-                    this.scale=1.3;
-                    for(let i=0;i<3;i++)particles.push(new Particle(this.x,this.y,this.def.color));
+        function createObstacles(){
+            obstacles=obsPositions.map(o=>({
+                x:o.x*W,y:o.y*H,w:o.w*W,h:o.h*H
+            }));
+        }
+
+        function spawnCrystal(){
+            let attempts=0;
+            while(attempts<50){
+                let cx=Math.random()*W*0.9+W*0.05;
+                let cy=Math.random()*H*0.9+H*0.05;
+                if(!obstacles.some(o=>cx>o.x&&cx<o.x+o.w&&cy>o.y&&cy<o.y+o.h)){
+                    crystals.push({x:cx,y:cy,radius:W/60,value:10+wave*2});
+                    break;
                 }
-            }
-            draw(){
-                if(this.scale>1)this.scale-=.05;
-                ctx.save();ctx.translate(this.x,this.y);ctx.scale(this.scale,this.scale);
-                ctx.fillStyle=this.def.color+'44';ctx.beginPath();ctx.arc(0,0,CELL*.35,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle=this.def.color;ctx.beginPath();ctx.arc(0,0,CELL*.25,0,Math.PI*2);ctx.fill();
-                ctx.font=(CELL*.35)+'px serif';ctx.textAlign='center';ctx.fillText(this.def.icon,0,CELL*.12);
-                ctx.restore();
+                attempts++;
             }
         }
 
-        class Enemy{
-            constructor(wp,hp,speed,reward,emoji){
-                this.wp=wp;this.x=waypoints[0].x;this.y=waypoints[0].y;
-                this.hp=hp;this.maxHp=hp;this.speed=speed;this.reward=reward;this.emoji=emoji;
-                this.alive=true;this.frozen=0;
-            }
-            update(){
-                if(this.frozen>0){this.frozen--;return}
-                let target=waypoints[this.wp];
-                let dx=target.x-this.x,dy=target.y-this.y,dist=Math.hypot(dx,dy);
-                if(dist<this.speed){this.wp++;if(this.wp>=waypoints.length){this.alive=false;lives--;if(lives<=0)endGame()}}
-                else{this.x+=dx/dist*this.speed;this.y+=dy/dist*this.speed}
-            }
-            draw(){
-                ctx.fillStyle='#fff';ctx.font=(CELL*.4)+'px serif';ctx.textAlign='center';ctx.fillText(this.emoji,this.x,this.y+CELL*.12);
-                let bw=CELL*.6,bh=5,by=this.y-CELL*.35;
-                ctx.fillStyle='#333';ctx.fillRect(this.x-bw/2,by,bw,bh);
-                ctx.fillStyle='#ff4444';ctx.fillRect(this.x-bw/2,by,bw*(this.hp/this.maxHp),bh);
-            }
+        function spawnEnemy(){
+            let side=Math.floor(Math.random()*4);
+            let ex,ey;
+            let margin=W*0.1;
+            if(side===0){ex=Math.random()*W;ey=-margin;}
+            else if(side===1){ex=W+margin;ey=Math.random()*H;}
+            else if(side===2){ex=Math.random()*W;ey=H+margin;}
+            else{ex=-margin;ey=Math.random()*H;}
+            let hp=8+wave*4;
+            let speed=W/400+wave*0.02;
+            enemies.push({
+                x:ex,y:ey,radius:W/28,hp:hp,maxHp:hp,speed:speed,damage:5+wave*2,attackCooldown:0
+            });
         }
 
-        class Bullet{
-            constructor(x,y,target,def){
-                this.x=x;this.y=y;this.target=target;this.def=def;this.speed=6;this.alive=true;
-            }
-            update(){
-                if(!this.target.alive){this.alive=false;return}
-                let dx=this.target.x-this.x,dy=this.target.y-this.y,dist=Math.hypot(dx,dy);
-                if(dist<this.speed){hit(this)}else{this.x+=dx/dist*this.speed;this.y+=dy/dist*this.speed}
-            }
-            draw(){ctx.fillText(this.def.bullet,this.x,this.y)}
+        function startWave(){
+            enemies=[];crystals=[];
+            for(let i=0;i<3+wave;i++) spawnEnemy();
+            for(let i=0;i<4;i++) spawnCrystal();
+            wave++;
+            document.getElementById('wave').textContent=wave;
         }
-
-        class Particle{
-            constructor(x,y,color){this.x=x;this.y=y;this.color=color;this.life=15;this.vx=(Math.random()-.5)*3;this.vy=(Math.random()-.5)*3}
-            update(){this.x+=this.vx;this.y+=this.vy;this.life--}
-            draw(){ctx.globalAlpha=this.life/15;ctx.fillStyle=this.color;ctx.fillRect(this.x-2,this.y-2,4,4);ctx.globalAlpha=1}
-        }
-
-        function hit(bullet){
-            let dmg=bullet.def.dmg,def=bullet.def;
-            bullet.target.hp-=dmg;
-            if(def.slow)bullet.target.frozen=Math.floor(def.slow*20);
-            for(let i=0;i<5;i++)particles.push(new Particle(bullet.target.x,bullet.target.y,def.color));
-            if(def.splash)enemies.forEach(e=>{if(e!==bullet.target&&Math.hypot(e.x-bullet.target.x,e.y-bullet.target.y)<def.splash*CELL){e.hp-=Math.floor(dmg*.5);if(def.slow)e.frozen=Math.floor(def.slow*10)}});
-            if(def.chain){let chained=[],last=bullet.target;for(let c=0;c<def.chain;c++){let nearest=null,minD=Infinity;enemies.forEach(e=>{if(e!==last&&!chained.includes(e)&&e.alive){let d=Math.hypot(e.x-last.x,e.y-last.y);if(d<def.range*CELL&&d<minD){minD=d;nearest=e}}});if(nearest){nearest.hp-=Math.floor(dmg*.6);chained.push(nearest);last=nearest;for(let i=0;i<3;i++)particles.push(new Particle(nearest.x,nearest.y,'#ffff44'))}}}
-            if(bullet.target.hp<=0){bullet.target.alive=false;coins+=bullet.target.reward;kills++;for(let i=0;i<8;i++)particles.push(new Particle(bullet.target.x,bullet.target.y,'#ffd700'))}
-            bullet.alive=false;
-        }
-
-        function spawnWave(){
-            wave++;spawnCount=0;spawnMax=4+wave*2;
-            let hp=8+wave*5,speed=Math.min(2.5,1+wave*.08);
-            let emojis=['🐀','🟢','🕷️','👺','🐺','💀','🧟','👹','😈','🐉'];
-            let emoji=emojis[Math.min(wave-1,emojis.length-1)];
-            return{hp,speed,reward:5+wave*3,emoji};
-        }
-
-        let currentWaveData=null;
 
         function startGame(){
-            lives=20;coins=150;wave=0;kills=0;towers=[];enemies=[];bullets=[];particles=[];gameOver=false;gameRunning=true;
-            initGrid();currentWaveData=spawnWave();spawnTimer=0;enemyIndex=0;
+            player.x=W/2;player.y=H/2;player.hp=player.maxHp;player.invincible=0;
+            score=0;wave=0;gameOver=false;gameRunning=true;
+            targetPoint=null;
+            createObstacles();
+            startWave();
             document.getElementById('overlay').style.display='none';
-            buildUI();
+            document.getElementById('hp').textContent=player.hp;
+            document.getElementById('score').textContent=score;
         }
 
         function endGame(){
             gameRunning=false;gameOver=true;
-            document.getElementById('overlay').innerHTML=`<h1>💀</h1><p>Волна ${wave} | Убито ${kills}</p><button class="big-btn red" onclick="startGame()">ЗАНОВО</button>`;
+            document.getElementById('overlay').innerHTML=`<h1>💀</h1><p>Волна ${wave-1}<br>Собрано кристаллов: ${score}🪙</p><button class="big-btn" onclick="startGame()">ЗАНОВО</button>`;
             document.getElementById('overlay').style.display='flex';
         }
 
-        function buildUI(){
-            let html='';
-            towerDefs.forEach((t,i)=>{
-                html+=`<div class="tower-btn${selectedTower===i?' selected':''}" onclick="selectTower(${i})"><span class="icon">${t.icon}</span><span class="cost">💰${t.cost}</span></div>`;
-            });
-            document.getElementById('ui-bottom').innerHTML=html;
-        }
-
-        function selectTower(i){
-            if(!gameRunning)return;
-            selectedTower=selectedTower===i?null:i;buildUI();
-        }
-
+        // Управление касанием
         canvas.addEventListener('click',(e)=>{
-            if(!gameRunning||selectedTower===null)return;
+            if(!gameRunning)return;
             let rect=canvas.getBoundingClientRect();
             let sx=W/rect.width,sy=H/rect.height;
-            let mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
-            let gx=Math.floor(mx/CELL),gy=Math.floor(my/CELL);
-            if(gx<0||gx>=COLS||gy<0||gy>=ROWS)return;
-            if(grid[gy][gx]===1)return;
-            if(towers.find(t=>Math.floor(t.x/CELL)===gx&&Math.floor(t.y/CELL)===gy))return;
-            let def=towerDefs[selectedTower];
-            if(coins<def.cost)return;
-            coins-=def.cost;
-            towers.push(new Tower(gx,gy,selectedTower));
-            grid[gy][gx]=2;
+            let mx=(e.clientX-rect.left)*sx;
+            let my=(e.clientY-rect.top)*sy;
+            targetPoint={x:mx,y:my};
+        });
+        canvas.addEventListener('touchmove',(e)=>{
+            e.preventDefault();
+            if(!gameRunning)return;
+            let rect=canvas.getBoundingClientRect();
+            let sx=W/rect.width,sy=H/rect.height;
+            let touch=e.touches[0];
+            let mx=(touch.clientX-rect.left)*sx;
+            let my=(touch.clientY-rect.top)*sy;
+            targetPoint={x:mx,y:my};
         });
 
-        function loop(){
-            ctx.clearRect(0,0,W,H);
-            // Сетка
-            for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
-                let xx=x*CELL,yy=y*CELL;
-                if(grid[y][x]===1)ctx.fillStyle='#2a1a0a';else ctx.fillStyle='#111122';
-                ctx.fillRect(xx+1,yy+1,CELL-2,CELL-2);
-                if(grid[y][x]===1){ctx.fillStyle='#3a2a1a';ctx.fillRect(xx+3,yy+3,CELL-6,CELL-6)}
+        // Игровой цикл
+        function update(){
+            if(!gameRunning)return;
+            // Движение игрока к точке
+            if(targetPoint){
+                let dx=targetPoint.x-player.x;
+                let dy=targetPoint.y-player.y;
+                let dist=Math.hypot(dx,dy);
+                if(dist>2){
+                    let step=Math.min(player.speed,dist);
+                    player.x+=dx/dist*step;
+                    player.y+=dy/dist*step;
+                }else targetPoint=null;
             }
-            // Спавн
-            if(gameRunning&&currentWaveData){
-                spawnTimer++;
-                if(spawnTimer>=spawnInterval&&spawnCount<spawnMax){
-                    spawnTimer=0;spawnCount++;
-                    enemies.push(new Enemy(0,currentWaveData.hp,currentWaveData.speed,currentWaveData.reward,currentWaveData.emoji));
-                    if(spawnCount>=spawnMax&&enemies.length===0){currentWaveData=spawnWave();spawnTimer=-30}
+            // Ограничение экрана
+            player.x=Math.max(player.radius,Math.min(W-player.radius,player.x));
+            player.y=Math.max(player.radius,Math.min(H-player.radius,player.y));
+            // Столкновение с препятствиями
+            obstacles.forEach(o=>{
+                if(player.x+player.radius>o.x&&player.x-player.radius<o.x+o.w&&
+                   player.y+player.radius>o.y&&player.y-player.radius<o.y+o.h){
+                    // выталкивание
+                    let cx=Math.max(o.x,Math.min(player.x,o.x+o.w));
+                    let cy=Math.max(o.y,Math.min(player.y,o.y+o.h));
+                    let dx=player.x-cx,dy=player.y-cy;
+                    let dist=Math.hypot(dx,dy);
+                    if(dist<player.radius&&dist>0){
+                        player.x=cx+dx/dist*player.radius;
+                        player.y=cy+dy/dist*player.radius;
+                    }
+                }
+            });
+
+            // Враги
+            enemies.forEach(e=>{
+                // Движение к игроку
+                let dx=player.x-e.x,dy=player.y-e.y,dist=Math.hypot(dx,dy);
+                if(dist>e.radius+player.radius){
+                    e.x+=dx/dist*e.speed;
+                    e.y+=dy/dist*e.speed;
+                }
+                // Атака игрока
+                if(dist<e.radius+player.radius&&e.attackCooldown<=0){
+                    if(player.invincible<=0){
+                        player.hp-=e.damage;
+                        player.invincible=15; // кадры неуязвимости
+                    }
+                    e.attackCooldown=40;
+                }
+                if(e.attackCooldown>0)e.attackCooldown--;
+            });
+
+            // Авто-атака игрока по ближайшему врагу
+            if(enemies.length>0){
+                let nearest=null,minDist=W*0.35;
+                enemies.forEach(e=>{
+                    let d=Math.hypot(player.x-e.x,player.y-e.y);
+                    if(d<minDist){minDist=d;nearest=e;}
+                });
+                if(nearest){
+                    // наносим урон каждые 20 кадров (имитация выстрела)
+                    if(!player.attackTimer)player.attackTimer=0;
+                    player.attackTimer++;
+                    if(player.attackTimer>=20){
+                        player.attackTimer=0;
+                        nearest.hp-=15+wave;
+                        // визуальный эффект: линия
+                    }
                 }
             }
-            // Обновление
-            towers.forEach(t=>t.update());
-            enemies.forEach(e=>e.update());
-            bullets.forEach(b=>b.update());
-            particles.forEach(p=>p.update());
-            // Удаление
-            enemies=enemies.filter(e=>e.alive);
-            bullets=bullets.filter(b=>b.alive);
-            particles=particles.filter(p=>p.life>0);
-            // Отрисовка
-            towers.forEach(t=>t.draw());
-            enemies.forEach(e=>e.draw());
-            bullets.forEach(b=>b.draw());
-            particles.forEach(p=>p.draw());
+
+            // Удаление мёртвых врагов
+            enemies=enemies.filter(e=>{
+                if(e.hp<=0){
+                    score+=5+wave;
+                    spawnCrystal();
+                    return false;
+                }
+                return true;
+            });
+
+            // Сбор кристаллов
+            crystals=crystals.filter(c=>{
+                let d=Math.hypot(player.x-c.x,player.y-c.y);
+                if(d<player.radius+c.radius){
+                    score+=c.value;
+                    return false;
+                }
+                return true;
+            });
+
+            // Неуязвимость
+            if(player.invincible>0)player.invincible--;
+
+            // Новая волна, если враги кончились
+            if(enemies.length===0){
+                startWave();
+            }
+
+            // Смерть
+            if(player.hp<=0){
+                endGame();
+            }
+
             // UI
-            document.getElementById('lives').textContent=Math.max(0,lives);
-            document.getElementById('coins').textContent=coins;
-            document.getElementById('wave').textContent=wave;
+            document.getElementById('hp').textContent=Math.max(0,player.hp);
+            document.getElementById('score').textContent=score;
+        }
+
+        function draw(){
+            ctx.clearRect(0,0,W,H);
+            // Трава
+            ctx.fillStyle='#4caf50';
+            ctx.fillRect(0,0,W,H);
+            // Сетка травы (узор)
+            ctx.fillStyle='#3e8e41';
+            for(let i=0;i<W;i+=W/12){
+                for(let j=0;j<H;j+=H/12){
+                    if((i+j)%(W/6)===0)ctx.fillRect(i,j,4,4);
+                }
+            }
+            // Препятствия (кусты)
+            obstacles.forEach(o=>{
+                ctx.fillStyle='#2e7d32';
+                ctx.fillRect(o.x,o.y,o.w,o.h);
+                ctx.fillStyle='#1b5e20';
+                ctx.fillRect(o.x+2,o.y+2,o.w-4,o.h-4);
+            });
+            // Кристаллы
+            crystals.forEach(c=>{
+                ctx.fillStyle='#ffd700';
+                ctx.beginPath();ctx.arc(c.x,c.y,c.radius,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#fff';
+                ctx.beginPath();ctx.arc(c.x-c.radius*0.3,c.y-c.radius*0.3,c.radius*0.4,0,Math.PI*2);ctx.fill();
+            });
+            // Враги
+            enemies.forEach(e=>{
+                ctx.fillStyle='#d32f2f';
+                ctx.beginPath();ctx.arc(e.x,e.y,e.radius,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#b71c1c';
+                ctx.beginPath();ctx.arc(e.x,e.y,e.radius*0.7,0,Math.PI*2);ctx.fill();
+                // Глаза
+                ctx.fillStyle='#fff';
+                ctx.beginPath();ctx.arc(e.x-e.radius*0.3,e.y-e.radius*0.2,e.radius*0.25,0,Math.PI*2);ctx.fill();
+                ctx.beginPath();ctx.arc(e.x+e.radius*0.3,e.y-e.radius*0.2,e.radius*0.25,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#000';
+                ctx.beginPath();ctx.arc(e.x-e.radius*0.3,e.y-e.radius*0.2,e.radius*0.1,0,Math.PI*2);ctx.fill();
+                ctx.beginPath();ctx.arc(e.x+e.radius*0.3,e.y-e.radius*0.2,e.radius*0.1,0,Math.PI*2);ctx.fill();
+                // HP bar
+                let hpW=e.radius*1.2;
+                ctx.fillStyle='#333';
+                ctx.fillRect(e.x-hpW/2,e.y-e.radius-8,hpW,4);
+                ctx.fillStyle='#ff4444';
+                ctx.fillRect(e.x-hpW/2,e.y-e.radius-8,hpW*(e.hp/e.maxHp),4);
+            });
+            // Игрок
+            if(player.invincible%6<3){ // мерцание при неуязвимости
+                ctx.fillStyle='#2196F3';
+                ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#1565C0';
+                ctx.beginPath();ctx.arc(player.x,player.y,player.radius*0.7,0,Math.PI*2);ctx.fill();
+                // шлем
+                ctx.fillStyle='#fff';
+                ctx.beginPath();ctx.arc(player.x,player.y-player.radius*0.25,player.radius*0.55,Math.PI,0);ctx.fill();
+                ctx.fillStyle='#2196F3';
+                ctx.beginPath();ctx.arc(player.x,player.y-player.radius*0.15,player.radius*0.3,Math.PI,0);ctx.fill();
+                // глаза
+                ctx.fillStyle='#fff';
+                ctx.beginPath();ctx.arc(player.x-player.radius*0.3,player.y-player.radius*0.2,player.radius*0.2,0,Math.PI*2);ctx.fill();
+                ctx.beginPath();ctx.arc(player.x+player.radius*0.3,player.y-player.radius*0.2,player.radius*0.2,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#000';
+                ctx.beginPath();ctx.arc(player.x-player.radius*0.3,player.y-player.radius*0.2,player.radius*0.08,0,Math.PI*2);ctx.fill();
+                ctx.beginPath();ctx.arc(player.x+player.radius*0.3,player.y-player.radius*0.2,player.radius*0.08,0,Math.PI*2);ctx.fill();
+            }
+        }
+
+        function loop(){
+            update();
+            draw();
             requestAnimationFrame(loop);
         }
 
-        initGrid();buildUI();loop();
+        loop();
     </script>
 </body>
 </html>
