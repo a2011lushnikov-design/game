@@ -2,46 +2,50 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dark Miner RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none}
-        *:focus,*:active{outline:none}
-        body{background:radial-gradient(ellipse at center,#1a0a0a 0%,#000 100%);color:#ccc;font-family:monospace;min-height:100vh;overflow-y:auto;user-select:none;-webkit-user-select:none;font-size:9px;line-height:1.6}
-        .header{background:linear-gradient(180deg,rgba(30,5,5,0.95),rgba(10,0,0,0.9));padding:10px;position:sticky;top:0;z-index:10;border-bottom:2px solid #ff4444;box-shadow:0 4px 20px rgba(255,0,0,.2)}
-        .coins{font-size:14px;color:#ffd700;text-shadow:0 0 10px #ffd700;text-align:center}
-        .hpbar{width:100%;height:10px;background:#1a0000;border-radius:5px;margin-top:6px;border:1px solid #330000}
-        .hpfill{height:100%;background:linear-gradient(90deg,#ff2222,#ff6666,#ff2222);border-radius:5px;transition:width .5s;box-shadow:0 0 10px #ff0000}
-        .hptext{text-align:center;color:#ff4444;margin-top:3px;font-size:7px}
-        .stats{display:flex;justify-content:space-around;margin-top:6px;font-size:7px;color:#aa6666}
-        .stats span{padding:2px 6px;background:rgba(255,0,0,.1);border-radius:4px}
-        .area{text-align:center;padding:15px;min-height:260px;position:relative}
-        .rock{width:100px;height:100px;margin:15px auto;cursor:pointer;font-size:50px;display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite;transition:transform .15s;filter:drop-shadow(0 0 15px rgba(255,255,255,.3))}
-        .rock:active{transform:scale(.8);animation:none}
-        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .monster{width:110px;height:110px;margin:15px auto;cursor:pointer;font-size:55px;display:flex;align-items:center;justify-content:center;animation:shake .25s infinite;filter:drop-shadow(0 0 25px red)}
-        @keyframes shake{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-4px) rotate(-2deg)}75%{transform:translateX(4px) rotate(2deg)}}
-        .alert{color:#ff3333;font-size:10px;animation:blink .6s infinite;text-shadow:0 0 15px red}
-        @keyframes blink{50%{opacity:.4}}
-        .panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px}
-        .btn{background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #333;border-radius:8px;padding:6px;cursor:pointer;text-align:center;font-size:7px;color:#aaa;transition:all .2s;position:relative}
-        .btn:active{background:#1a0a00;border-color:#ff6600;transform:scale(.96)}
-        .btn .icon{font-size:22px;display:block;margin-bottom:2px}
-        .btn .cost{color:#ffaa00;font-size:7px;margin-top:2px}
-        .btn .lvl{color:#555;font-size:6px}
-        .btn .skin{font-size:9px;color:#777;margin-top:1px}
-        .log{background:rgba(0,0,0,.6);padding:6px;font-size:7px;color:#666;max-height:70px;overflow-y:auto;margin:6px;border-radius:6px;border:1px solid #1a1a1a}
-        .log .good{color:#44cc44}.log .bad{color:#ff4444}.log .gold{color:#ffd700}.log .rare{color:#cc88ff}
-        .float-text{position:fixed;pointer-events:none;font-weight:bold;z-index:999;animation:floatUp .8s forwards}
-        @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+        html,body{width:100%;height:100%;overflow:hidden;font-family:monospace;background:#000;color:#ccc;user-select:none;-webkit-user-select:none}
+        body{display:flex;flex-direction:column;max-width:800px;margin:0 auto;background:radial-gradient(ellipse at center,#1a0a0a 0%,#000 100%)}
+        .header{background:linear-gradient(180deg,rgba(30,5,5,0.95),rgba(10,0,0,0.9));padding:12px 15px;border-bottom:2px solid #ff4444;box-shadow:0 4px 20px rgba(255,0,0,.2);flex-shrink:0}
+        .coins{font-size:clamp(16px,4vw,22px);color:#ffd700;text-shadow:0 0 10px #ffd700;text-align:center;font-weight:bold}
+        .hpbar{width:100%;height:12px;background:#1a0000;border-radius:6px;margin-top:8px;border:1px solid #330000}
+        .hpfill{height:100%;background:linear-gradient(90deg,#ff2222,#ff6666,#ff2222);border-radius:6px;transition:width .3s;box-shadow:0 0 10px #ff0000}
+        .hptext{text-align:center;color:#ff4444;margin-top:4px;font-size:clamp(10px,2vw,13px)}
+        .stats{display:flex;justify-content:space-around;margin-top:8px;flex-wrap:wrap;gap:4px}
+        .stats span{padding:4px 10px;background:rgba(255,0,0,.1);border-radius:6px;font-size:clamp(9px,2vw,12px);color:#cc8888}
+        .main-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:200px;padding:20px}
+        .click-zone{width:min(180px,40vw);height:min(180px,40vw);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:clamp(50px,12vw,90px);animation:pulse 2s infinite;transition:transform .1s;filter:drop-shadow(0 0 20px rgba(255,255,255,.4));-webkit-tap-highlight-color:transparent}
+        .click-zone:active{transform:scale(.85);animation:none}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+        .monster-zone{width:min(200px,45vw);height:min(200px,45vw);border-radius:50%;cursor:pointer;font-size:clamp(55px,14vw,100px);display:flex;align-items:center;justify-content:center;animation:shake .2s infinite;filter:drop-shadow(0 0 35px rgba(255,0,0,.7));background:radial-gradient(circle,rgba(100,0,0,.5),transparent)}
+        @keyframes shake{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-5px) rotate(-3deg)}75%{transform:translateX(5px) rotate(3deg)}}
+        .info-text{text-align:center;margin-top:10px;font-size:clamp(10px,2.5vw,14px)}
+        .alert-text{color:#ff3333;font-weight:bold;animation:blink .5s infinite;font-size:clamp(12px,3vw,16px);text-shadow:0 0 15px red}
+        @keyframes blink{50%{opacity:.3}}
+        .panel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;flex-shrink:0;max-width:800px;margin:0 auto;width:100%}
+        .btn{background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #333;border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;color:#aaa;transition:all .15s;font-size:clamp(8px,1.8vw,11px);-webkit-tap-highlight-color:transparent}
+        .btn:active{background:#1a0a00;border-color:#ff6600;transform:scale(.94)}
+        .btn .icon{font-size:clamp(20px,5vw,30px);display:block;margin-bottom:3px}
+        .btn .cost{color:#ffaa00;font-size:clamp(7px,1.5vw,10px);margin-top:3px}
+        .btn .lvl{color:#555;font-size:clamp(6px,1.3vw,9px)}
+        .btn .skin{font-size:clamp(7px,1.4vw,9px);color:#777;margin-top:2px}
+        .log{background:rgba(0,0,0,.5);padding:8px 12px;font-size:clamp(8px,1.6vw,10px);color:#666;height:60px;overflow-y:auto;margin:0 10px 10px;border-radius:8px;border:1px solid #1a1a1a;flex-shrink:0}
+        .log .good{color:#44cc44}.log .bad{color:#ff4444}.log .gold{color:#ffd700}.log .rare{color:#cc88ff}.log .boss{color:#ff8800}
+        .float-text{position:fixed;pointer-events:none;font-weight:bold;z-index:999;animation:floatUp .7s forwards;font-size:clamp(14px,3vw,20px)}
+        @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(1.5)}}
         .screen-shake{animation:screenShake .3s}
-        @keyframes screenShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-        .dead-screen{text-align:center;padding:30px}
-        .dead-screen .skull{font-size:60px;animation:dropIn .5s}
-        @keyframes dropIn{0%{transform:translateY(-100px);opacity:0}60%{transform:translateY(10px)}100%{transform:translateY(0);opacity:1}}
-        button{background:linear-gradient(180deg,#cc0000,#880000);color:#fff;border:none;padding:10px 20px;border-radius:20px;font-family:monospace;font-size:9px;cursor:pointer;box-shadow:0 0 20px rgba(255,0,0,.4);animation:pulse 1.5s infinite}
-        button:active{transform:scale(.9)}
+        @keyframes screenShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+        .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:100}
+        .overlay-content{text-align:center;padding:30px}
+        .overlay .skull{font-size:clamp(50px,12vw,80px);animation:dropIn .5s}
+        @keyframes dropIn{0%{transform:translateY(-120px);opacity:0}60%{transform:translateY(15px)}100%{transform:translateY(0);opacity:1}}
+        .big-btn{background:linear-gradient(180deg,#cc0000,#880000);color:#fff;border:none;padding:12px 30px;border-radius:25px;font-family:monospace;font-size:clamp(11px,2.5vw,15px);cursor:pointer;box-shadow:0 0 25px rgba(255,0,0,.5);margin:8px}
+        .big-btn.gold{background:linear-gradient(180deg,#cc8800,#885500);box-shadow:0 0 25px rgba(255,200,0,.5)}
+        .big-btn:active{transform:scale(.9)}
+        .boss-alert{font-size:clamp(14px,3.5vw,20px);color:#ff8800;text-shadow:0 0 20px #ff8800;animation:blink .3s infinite}
     </style>
 </head>
 <body id="body">
@@ -51,127 +55,132 @@
         <div class="hptext">❤️ <span id="hp">100</span>/100</div>
         <div class="stats">
             <span id="skin_pick">⛏️<b id="pick_lvl">1</b></span>
-            <span id="skin_sword">⚔️<b id="sword_lvl">1</b></span>
+            <span id="skin_sword">🔪<b id="sword_lvl">1</b></span>
             <span id="skin_armor">🛡️<b id="armor_lvl">1</b></span>
             <span>⭐<b id="lvl">1</b></span>
         </div>
     </div>
 
-    <div class="area">
-        <div id="rock_area"><div class="rock" onclick="mine(event)">💎</div><div id="ore_name" style="color:#888">Каменная руда</div><div id="ore_hp">Прочность: 2/2</div></div>
-        <div id="monster_area" style="display:none"><div class="monster" onclick="attack(event)">👹</div><div class="alert">⚡ МОНСТР!</div><div id="monster_name" style="color:#ff5555">Крыса</div><div id="monster_hp">❤️ 5/5</div></div>
-        <div id="dead_area" style="display:none" class="dead-screen"><div class="skull">💀</div><div style="color:#ff0000;font-size:12px;margin:15px">ВЫ ПОГИБЛИ</div><div style="color:#aaa;margin:10px;font-size:7px">-90% монет</div><button onclick="revive()">ВОСКРЕСНУТЬ</button></div>
+    <div class="main-area" id="main-area">
+        <div id="rock_area" style="text-align:center">
+            <div class="click-zone" onclick="mine(event)">💎</div>
+            <div class="info-text" id="ore_name">Каменная руда</div>
+            <div class="info-text" id="ore_hp" style="color:#555">Прочность: 2/2</div>
+        </div>
+        <div id="monster_area" style="display:none;text-align:center">
+            <div class="monster-zone" onclick="attack(event)">👹</div>
+            <div class="alert-text">⚡ МОНСТР!</div>
+            <div class="info-text" id="monster_name" style="color:#ff5555">Крыса</div>
+            <div class="info-text" id="monster_hp">❤️ 5/5</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="dead_overlay" style="display:none">
+        <div class="overlay-content">
+            <div class="skull">💀</div>
+            <div style="color:#ff0000;font-size:clamp(14px,3vw,20px);margin:15px">ВЫ ПОГИБЛИ</div>
+            <div style="color:#aaa;margin:10px">-90% монет</div>
+            <button class="big-btn" onclick="revive()">ВОСКРЕСНУТЬ</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="daily_overlay" style="display:none">
+        <div class="overlay-content">
+            <div style="font-size:clamp(40px,10vw,60px)">🎁</div>
+            <div style="color:#ffd700;font-size:clamp(14px,3vw,20px);margin:15px">ЕЖЕДНЕВНАЯ НАГРАДА</div>
+            <div style="color:#aaa">+<span id="daily_bonus">100</span> монет</div>
+            <button class="big-btn gold" onclick="claimDaily()">ЗАБРАТЬ</button>
+        </div>
     </div>
 
     <div class="panel">
         <div class="btn" onclick="upgrade('pick')"><span class="icon" id="icon_pick">⛏️</span>Кирка<div class="cost">💰<span id="cost_pick">50</span></div><div class="lvl">Ур.<span id="lvl_pick">1</span></div><div class="skin" id="skinname_pick">Базовая</div></div>
-        <div class="btn" onclick="upgrade('sword')"><span class="icon" id="icon_sword">⚔️</span>Меч<div class="cost">💰<span id="cost_sword">75</span></div><div class="lvl">Ур.<span id="lvl_sword">1</span></div><div class="skin" id="skinname_sword">Базовый</div></div>
-        <div class="btn" onclick="upgrade('armor')"><span class="icon" id="icon_armor">🛡️</span>Броня<div class="cost">💰<span id="cost_armor">60</span></div><div class="lvl">Ур.<span id="lvl_armor">1</span></div><div class="skin" id="skinname_armor">Базовая</div></div>
+        <div class="btn" onclick="upgrade('sword')"><span class="icon" id="icon_sword">🔪</span>Меч<div class="cost">💰<span id="cost_sword">75</span></div><div class="lvl">Ур.<span id="lvl_sword">1</span></div><div class="skin" id="skinname_sword">Нож</div></div>
+        <div class="btn" onclick="upgrade('armor')"><span class="icon" id="icon_armor">🛡️</span>Броня<div class="cost">💰<span id="cost_armor">60</span></div><div class="lvl">Ур.<span id="lvl_armor">1</span></div><div class="skin" id="skinname_armor">Деревянный</div></div>
     </div>
 
     <div class="log" id="log">🗒️ <span class="good">Ты спустился в шахту...</span></div>
 
     <script>
         const tg=window.Telegram.WebApp;tg.expand();
-        let coins=0,lvl=1,exp=0,expNeed=50;
+        let coins=0,lvl=1,exp=0,expNeed=40;
         let pick=1,sword=1,armor=1;
-        let cost_pick=50,cost_sword=75,cost_armor=60;
+        let cost_pick=40,cost_sword=60,cost_armor=50;
         let hp=100,maxHP=100;
         let dead=false,monsterActive=false;
         let monsterHP,monsterMaxHP,monsterReward,monsterName,monsterDmg,monsterInterval;
         let oreHP,oreMaxHP,oreName,oreReward;
+        let bossActive=false,lastDaily=null;
 
-        // Скины на кирку
-        const pickSkins=[
-            {lvl:1,icon:'⛏️',name:'Базовая'},
-            {lvl:4,icon:'🔨',name:'Каменная'},
-            {lvl:8,icon:'🪓',name:'Железная'},
-            {lvl:14,icon:'⚒️',name:'Золотая'},
-            {lvl:22,icon:'💠',name:'Алмазная'},
-            {lvl:32,icon:'🔮',name:'Мифриловая'},
-            {lvl:44,icon:'⚡',name:'Адамантитовая'}
-        ];
-        const swordSkins=[
-            {lvl:1,icon:'🔪',name:'Нож'},
-            {lvl:5,icon:'🗡️',name:'Кинжал'},
-            {lvl:10,icon:'⚔️',name:'Меч'},
-            {lvl:16,icon:'🔱',name:'Трезубец'},
-            {lvl:24,icon:'💫',name:'Экскалибур'},
-            {lvl:35,icon:'🔥',name:'Огненный'},
-            {lvl:48,icon:'👑',name:'Королевский'}
-        ];
-        const armorSkins=[
-            {lvl:1,icon:'🛡️',name:'Деревянный'},
-            {lvl:5,icon:'🔰',name:'Кожаный'},
-            {lvl:10,icon:'🛡️',name:'Железный'},
-            {lvl:17,icon:'💠',name:'Алмазный'},
-            {lvl:26,icon:'🔮',name:'Мифриловый'},
-            {lvl:38,icon:'⚜️',name:'Золотой'},
-            {lvl:50,icon:'👑',name:'Божественный'}
-        ];
+        const pickSkins=[{lvl:1,icon:'⛏️',n:'Базовая'},{lvl:4,icon:'🔨',n:'Каменная'},{lvl:8,icon:'🪓',n:'Железная'},{lvl:15,icon:'⚒️',n:'Золотая'},{lvl:24,icon:'💠',n:'Алмазная'},{lvl:35,icon:'🔮',n:'Мифриловая'},{lvl:48,icon:'⚡',n:'Адамантитовая'}];
+        const swordSkins=[{lvl:1,icon:'🔪',n:'Нож'},{lvl:5,icon:'🗡️',n:'Кинжал'},{lvl:11,icon:'⚔️',n:'Меч'},{lvl:18,icon:'🔱',n:'Трезубец'},{lvl:27,icon:'💫',n:'Экскалибур'},{lvl:38,icon:'🔥',n:'Огненный'},{lvl:50,icon:'👑',n:'Королевский'}];
+        const armorSkins=[{lvl:1,icon:'🛡️',n:'Деревянный'},{lvl:5,icon:'🔰',n:'Кожаный'},{lvl:11,icon:'🛡️',n:'Железный'},{lvl:19,icon:'💠',n:'Алмазный'},{lvl:29,icon:'🔮',n:'Мифриловый'},{lvl:41,icon:'⚜️',n:'Золотой'},{lvl:52,icon:'👑',n:'Божественный'}];
 
-        const ores=[{n:'Каменная',e:'🪨',l:1,hp:2,g:1},{n:'Медная',e:'🟤',l:4,hp:5,g:3},{n:'Железная',e:'⚙️',l:8,hp:12,g:8},{n:'Золотая',e:'✨',l:14,hp:25,g:20},{n:'Алмазная',e:'💠',l:22,hp:50,g:60},{n:'Мифрил',e:'🔮',l:30,hp:90,g:180},{n:'Адамантит',e:'💎',l:40,hp:180,g:600}];
+        const ores=[{n:'Каменная',e:'🪨',l:1,hp:2,g:1},{n:'Медная',e:'🟤',l:4,hp:5,g:3},{n:'Железная',e:'⚙️',l:8,hp:10,g:7},{n:'Золотая',e:'✨',l:14,hp:22,g:18},{n:'Алмазная',e:'💠',l:22,hp:45,g:55},{n:'Мифрил',e:'🔮',l:32,hp:85,g:170},{n:'Адамантит',e:'💎',l:42,hp:170,g:550}];
         
-        const monsters=[
-            {n:'Крыса',e:'🐀',l:1,hp:5,dmg:2,r:5},
-            {n:'Слизень',e:'🟢',l:3,hp:12,dmg:4,r:14},
-            {n:'Паук',e:'🕷️',l:5,hp:18,dmg:6,r:22},
-            {n:'Гоблин',e:'👺',l:8,hp:30,dmg:10,r:50},
-            {n:'Волк',e:'🐺',l:10,hp:40,dmg:12,r:70},
-            {n:'Скелет',e:'💀',l:13,hp:55,dmg:16,r:110},
-            {n:'Зомби',e:'🧟',l:16,hp:75,dmg:20,r:160},
-            {n:'Тролль',e:'👹',l:20,hp:120,dmg:28,r:350},
-            {n:'Вампир',e:'🧛',l:23,hp:160,dmg:35,r:500},
-            {n:'Голем',e:'🗿',l:27,hp:220,dmg:42,r:800},
-            {n:'Демон',e:'😈',l:30,hp:300,dmg:50,r:1200},
-            {n:'Лавовый',e:'🌋',l:34,hp:400,dmg:60,r:1800},
-            {n:'Ледяной',e:'❄️',l:37,hp:500,dmg:68,r:2500},
-            {n:'Теневой',e:'👤',l:40,hp:650,dmg:78,r:3500},
-            {n:'ДРАКОН',e:'🐉',l:44,hp:900,dmg:95,r:5000},
-            {n:'ДРЕВНИЙ',e:'👁️',l:50,hp:1400,dmg:120,r:10000}
-        ];
+        const monsters=[{n:'Крыса',e:'🐀',l:1,hp:5,dmg:2,r:5},{n:'Слизень',e:'🟢',l:3,hp:12,dmg:4,r:14},{n:'Паук',e:'🕷️',l:5,hp:18,dmg:6,r:22},{n:'Гоблин',e:'👺',l:8,hp:28,dmg:9,r:45},{n:'Волк',e:'🐺',l:10,hp:38,dmg:11,r:65},{n:'Скелет',e:'💀',l:13,hp:50,dmg:15,r:100},{n:'Зомби',e:'🧟',l:16,hp:70,dmg:19,r:150},{n:'Тролль',e:'👹',l:20,hp:110,dmg:26,r:320},{n:'Вампир',e:'🧛',l:23,hp:150,dmg:33,r:480},{n:'Голем',e:'🗿',l:27,hp:200,dmg:40,r:750},{n:'Демон',e:'😈',l:31,hp:280,dmg:48,r:1100},{n:'Лавовый',e:'🌋',l:35,hp:380,dmg:58,r:1700},{n:'Ледяной',e:'❄️',l:38,hp:480,dmg:66,r:2400},{n:'Теневой',e:'👤',l:41,hp:620,dmg:76,r:3300}];
+        
+        const bosses=[{n:'ДРАКОН',e:'🐉',l:15,hp:300,dmg:30,r:800},{n:'ГИДРА',e:'🐍',l:25,hp:700,dmg:55,r:2500},{n:'ТИТАН',e:'🗿',l:35,hp:1500,dmg:80,r:7000},{n:'ДРЕВНИЙ',e:'👁️',l:45,hp:3000,dmg:120,r:20000}];
 
         function getSkin(skins,lvl){let s=skins[0];for(let i=0;i<skins.length;i++)if(lvl>=skins[i].lvl)s=skins[i];return s}
-        
         function getOre(){for(let i=ores.length-1;i>=0;i--)if(lvl>=ores[i].l)return ores[i];return ores[0]}
         
-        function spawnOre(){clearInterval(monsterInterval);monsterInterval=null;monsterActive=false;let o=getOre();oreName=o.n;oreMaxHP=o.hp;oreHP=oreMaxHP;oreReward=o.g;document.getElementById('ore_name').textContent=o.e+' '+oreName;document.getElementById('ore_hp').textContent='Прочность: '+oreHP+'/'+oreMaxHP;document.getElementById('rock_area').style.display='block';document.getElementById('monster_area').style.display='none';document.getElementById('dead_area').style.display='none'}
+        function spawnOre(){clearInterval(monsterInterval);monsterInterval=null;monsterActive=false;bossActive=false;let o=getOre();oreName=o.n;oreMaxHP=o.hp;oreHP=oreMaxHP;oreReward=o.g;document.getElementById('ore_name').textContent=o.e+' '+oreName;document.getElementById('ore_hp').textContent='Прочность: '+oreHP+'/'+oreMaxHP;document.getElementById('rock_area').style.display='block';document.getElementById('monster_area').style.display='none'}
         
-        function spawnMonster(){let a=monsters.filter(m=>lvl>=m.l);if(!a.length)return;let m=a[Math.floor(Math.random()*a.length)];monsterName=m.n;monsterMaxHP=m.hp;monsterHP=monsterMaxHP;monsterReward=m.r;monsterDmg=Math.max(1,m.dmg-armor+1);document.getElementById('monster_name').textContent=m.e+' '+monsterName;document.getElementById('monster_hp').textContent='❤️ '+monsterHP+'/'+monsterMaxHP;document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='block';monsterActive=true;addLog('bad','⚡ '+monsterName+'!');if(monsterInterval)clearInterval(monsterInterval);monsterInterval=setInterval(monsterTick,1000)}
+        function spawnMonster(boss=false){let pool=boss?bosses.filter(m=>lvl>=m.l):monsters.filter(m=>lvl>=m.l);if(!pool.length)return;let m=pool[Math.floor(Math.random()*pool.length)];monsterName=m.n;monsterMaxHP=m.hp;monsterHP=monsterMaxHP;monsterReward=m.r;monsterDmg=Math.max(1,m.dmg-Math.floor(armor/2));bossActive=boss;document.getElementById('monster_name').textContent=m.e+' '+monsterName+(boss?' ⚜️БОСС':'')+(boss?' ⚜️БОСС':'');document.getElementById('monster_hp').textContent='❤️ '+monsterHP+'/'+monsterMaxHP;document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='block';monsterActive=true;addLog(boss?'boss':'bad','⚡ '+(boss?'БОСС ':'')+monsterName+'!');if(monsterInterval)clearInterval(monsterInterval);monsterInterval=setInterval(monsterTick,1000)}
         
         function monsterTick(){if(!monsterActive||dead)return;hp-=monsterDmg;updateHP();if(hp<=0)die()}
         
-        function mine(e){if(monsterActive||dead)return;oreHP-=pick;document.getElementById('ore_hp').textContent='Прочность: '+Math.max(0,oreHP)+'/'+oreMaxHP;floatText(e,'-'+pick,'#fff');if(oreHP<=0){let bonus=Math.random()<.15?oreReward*2:oreReward;let isCrit=bonus>oreReward;coins+=bonus;addLog('gold','⛏️ '+oreName+': +'+bonus+'💰'+(isCrit?' 💥КРИТ!':''));gainExp(Math.floor(oreReward/2));spawnOre();if(Math.random()<Math.min(.35,.05+lvl*.015))spawnMonster()}updateUI()}
+        function mine(e){if(monsterActive||dead)return;oreHP-=pick;document.getElementById('ore_hp').textContent='Прочность: '+Math.max(0,oreHP)+'/'+oreMaxHP;floatText(e,'-'+pick,'#fff');if(oreHP<=0){let bonus=Math.random()<.18?oreReward*2:oreReward;coins+=bonus;addLog('gold','⛏️ '+oreName+': +'+bonus+'💰'+(bonus>oreReward?' 💥КРИТ!':''));gainExp(Math.floor(oreReward/2));spawnOre();let r=Math.random();if(r<.08&&lvl>=15)spawnMonster(true);else if(r<Math.min(.35,.05+lvl*.015))spawnMonster()}updateUI()}
         
-        function attack(e){if(!monsterActive||dead)return;let dmg=sword;let isCrit=Math.random()<.2;if(isCrit)dmg*=2;monsterHP-=dmg;floatText(e,'-'+dmg,isCrit?'#ff0':'#ff8888');document.getElementById('monster_hp').textContent='❤️ '+Math.max(0,monsterHP)+'/'+monsterMaxHP;if(isCrit)document.getElementById('body').classList.add('screen-shake');setTimeout(()=>document.getElementById('body').classList.remove('screen-shake'),300);if(monsterHP<=0){coins+=monsterReward;addLog('good','⚔️ '+monsterName+': +'+monsterReward+'💰');gainExp(Math.floor(monsterReward/3));spawnOre()}updateUI()}
+        function attack(e){if(!monsterActive||dead)return;let dmg=sword;let isCrit=Math.random()<.2;if(isCrit)dmg*=bossActive?1.5:2;monsterHP-=dmg;floatText(e,'-'+dmg,isCrit?'#ff0':'#ff8888');document.getElementById('monster_hp').textContent='❤️ '+Math.max(0,monsterHP)+'/'+monsterMaxHP;if(isCrit){document.getElementById('body').classList.add('screen-shake');setTimeout(()=>document.getElementById('body').classList.remove('screen-shake'),300)}if(monsterHP<=0){coins+=monsterReward;addLog('good','⚔️ '+monsterName+': +'+monsterReward+'💰');gainExp(Math.floor(monsterReward/2));spawnOre()}updateUI()}
         
-        function gainExp(a){exp+=a;while(exp>=expNeed){exp-=expNeed;lvl++;expNeed=Math.floor(expNeed*1.5);maxHP+=15;hp=Math.min(hp+30,maxHP);addLog('good','⭐ УРОВЕНЬ '+lvl+'! HP+15');spawnOre()}updateUI()}
+        function gainExp(a){exp+=a;while(exp>=expNeed){exp-=expNeed;lvl++;expNeed=Math.floor(expNeed*1.4);maxHP+=15;hp=Math.min(hp+25,maxHP);addLog('good','⭐ УРОВЕНЬ '+lvl+'! HP+15');spawnOre()}updateUI();updateSkins()}
         
-        function die(){dead=true;clearInterval(monsterInterval);coins=Math.floor(coins*0.1);document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='none';document.getElementById('dead_area').style.display='block';addLog('bad','💀 Вы погибли! -90% монет.');updateUI()}
+        function die(){dead=true;clearInterval(monsterInterval);coins=Math.floor(coins*0.1);document.getElementById('rock_area').style.display='none';document.getElementById('monster_area').style.display='none';document.getElementById('dead_overlay').style.display='flex';addLog('bad','💀 Вы погибли! -90% монет.');updateUI()}
         
-        function revive(){dead=false;hp=maxHP;updateHP();spawnOre();addLog('good','✨ Воскресли.');updateUI()}
+        function revive(){dead=false;hp=maxHP;updateHP();document.getElementById('dead_overlay').style.display='none';spawnOre();addLog('good','✨ Воскресли.');updateUI()}
         
-        function upgrade(t){let c=t==='pick'?cost_pick:t==='sword'?cost_sword:cost_armor;if(coins<c||dead)return;coins-=c;if(t==='pick'){pick++;cost_pick=Math.floor(cost_pick*1.7)}if(t==='sword'){sword++;cost_sword=Math.floor(cost_sword*1.7)}if(t==='armor'){armor++;cost_armor=Math.floor(cost_armor*1.7)}addLog('gold','🔧 '+(t==='pick'?'Кирка':t==='sword'?'Меч':'Броня')+' улучшена!');updateSkins();updateUI()}
+        function upgrade(t){let c=t==='pick'?cost_pick:t==='sword'?cost_sword:cost_armor;if(coins<c||dead)return;coins-=c;if(t==='pick'){pick++;cost_pick=Math.floor(cost_pick*1.6)}if(t==='sword'){sword++;cost_sword=Math.floor(cost_sword*1.6)}if(t==='armor'){armor++;cost_armor=Math.floor(cost_armor*1.6)}addLog('gold','🔧 '+(t==='pick'?'Кирка':t==='sword'?'Меч':'Броня')+' улучшена!');updateSkins();updateUI()}
         
         function updateSkins(){
             let ps=getSkin(pickSkins,pick),ss=getSkin(swordSkins,sword),as=getSkin(armorSkins,armor);
-            document.getElementById('icon_pick').textContent=ps.icon;document.getElementById('skinname_pick').textContent=ps.name;
-            document.getElementById('icon_sword').textContent=ss.icon;document.getElementById('skinname_sword').textContent=ss.name;
-            document.getElementById('icon_armor').textContent=as.icon;document.getElementById('skinname_armor').textContent=as.name;
+            document.getElementById('icon_pick').textContent=ps.icon;document.getElementById('skinname_pick').textContent=ps.n;
+            document.getElementById('icon_sword').textContent=ss.icon;document.getElementById('skinname_sword').textContent=ss.n;
+            document.getElementById('icon_armor').textContent=as.icon;document.getElementById('skinname_armor').textContent=as.n;
             document.getElementById('skin_pick').innerHTML=ps.icon+' <b id="pick_lvl">'+pick+'</b>';
             document.getElementById('skin_sword').innerHTML=ss.icon+' <b id="sword_lvl">'+sword+'</b>';
             document.getElementById('skin_armor').innerHTML=as.icon+' <b id="armor_lvl">'+armor+'</b>';
         }
         
-        function floatText(e,txt,color){let d=document.createElement('div');d.className='float-text';d.textContent=txt;d.style.color=color;d.style.left=e.clientX+'px';d.style.top=(e.clientY-20)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),800)}
+        function claimDaily(){
+            let bonus=100+lvl*10;
+            coins+=bonus;
+            document.getElementById('daily_overlay').style.display='none';
+            addLog('rare','🎁 Ежедневная награда: +'+bonus+'💰');
+            updateUI();
+        }
+        
+        function checkDaily(){
+            let today=new Date().toDateString();
+            let saved=localStorage.getItem('daily_'+tg.initDataUnsafe?.user?.id||'guest');
+            if(saved!==today){
+                document.getElementById('daily_bonus').textContent=100+lvl*10;
+                document.getElementById('daily_overlay').style.display='flex';
+                localStorage.setItem('daily_'+tg.initDataUnsafe?.user?.id||'guest',today);
+            }
+        }
+        
+        function floatText(e,txt,color){let d=document.createElement('div');d.className='float-text';d.textContent=txt;d.style.color=color;d.style.left=e.clientX+'px';d.style.top=(e.clientY-25)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),700)}
         
         function updateHP(){let pct=Math.max(0,hp)/maxHP*100;document.getElementById('hpfill').style.width=pct+'%';document.getElementById('hp').textContent=Math.max(0,hp)}
         
         function updateUI(){document.getElementById('coins').textContent=coins;document.getElementById('pick_lvl').textContent=pick;document.getElementById('sword_lvl').textContent=sword;document.getElementById('armor_lvl').textContent=armor;document.getElementById('lvl').textContent=lvl;document.getElementById('cost_pick').textContent=cost_pick;document.getElementById('cost_sword').textContent=cost_sword;document.getElementById('cost_armor').textContent=cost_armor;document.getElementById('lvl_pick').textContent=pick;document.getElementById('lvl_sword').textContent=sword;document.getElementById('lvl_armor').textContent=armor;updateHP()}
         
-        function addLog(cls,msg){let l=document.getElementById('log');l.innerHTML='<span class="'+cls+'">'+msg+'</span><br>'+l.innerHTML;if(l.children.length>25)l.removeChild(l.lastChild)}
+        function addLog(cls,msg){let l=document.getElementById('log');l.innerHTML='<span class="'+cls+'">'+msg+'</span><br>'+l.innerHTML;while(l.children.length>30)l.removeChild(l.lastChild)}
 
         spawnOre();updateSkins();updateUI();
+        setTimeout(checkDaily,1000);
     </script>
 </body>
 </html>
