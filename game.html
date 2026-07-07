@@ -3,328 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Brawl Stars Mini</title>
+    <title>Brawl Mini</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none}
-        html,body{width:100%;height:100%;overflow:hidden;background:#1a3a1a;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        html,body{width:100%;height:100%;overflow:hidden;background:#0d1b0d;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
         body{display:flex;flex-direction:column;align-items:center;justify-content:center}
-        #container{position:relative;width:100vw;height:100vw;max-width:500px;max-height:500px;margin:0 auto;background:#2b5e2b;border-radius:20px;overflow:hidden;box-shadow:0 0 30px rgba(0,200,0,.3)}
+        #container{position:relative;width:100vw;height:100vw;max-width:500px;max-height:500px;margin:0 auto;background:#1a3a1a;border-radius:16px;overflow:hidden;box-shadow:0 0 30px rgba(0,180,0,.3)}
         canvas{display:block;width:100%;height:100%}
-        #ui-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;gap:6px;flex-wrap:wrap}
-        .badge{background:rgba(0,0,0,.7);color:#fff;padding:5px 10px;border-radius:20px;font-size:13px;font-weight:bold;backdrop-filter:blur(6px);display:flex;align-items:center;gap:5px}
-        .badge.hp{color:#ff6b6b}.badge.coins{color:#ffd700}.badge.wave{color:#a0d2ff}
-        #overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:12px;backdrop-filter:blur(8px)}
-        #overlay h1{font-size:28px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,.5)}
-        #overlay p{color:#ccc;font-size:14px;text-align:center;padding:0 20px}
-        .big-btn{background:linear-gradient(135deg,#f0a500,#ffd000);color:#000;border:none;padding:12px 30px;border-radius:30px;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 5px 20px rgba(255,200,0,.4)}
-        .big-btn:active{transform:scale(.93)}
+        #ui-top{position:absolute;top:6px;left:6px;right:6px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;gap:4px}
+        .badge{background:rgba(0,0,0,.75);color:#fff;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:4px}
+        .badge.r{color:#ff5555}.badge.g{color:#ffd700}.badge.b{color:#a0d2ff}
+        #overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:10px}
+        #overlay h1{font-size:24px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,.5)}
+        #overlay p{color:#aaa;font-size:12px;text-align:center;padding:0 15px}
+        .bbtn{background:linear-gradient(135deg,#f0a500,#ffd000);color:#000;border:none;padding:10px 25px;border-radius:25px;font-size:14px;font-weight:bold;cursor:pointer}
+        .bbtn:active{transform:scale(.93)}
+        #joystick{position:absolute;bottom:30px;left:30px;width:80px;height:80px;background:rgba(255,255,255,.1);border-radius:50%;border:2px solid rgba(255,255,255,.2);z-index:15;display:flex;align-items:center;justify-content:center}
+        #joystick-knob{width:35px;height:35px;background:rgba(255,255,255,.4);border-radius:50%}
+        #attack-btn{position:absolute;bottom:40px;right:30px;width:60px;height:60px;background:rgba(255,80,80,.3);border-radius:50%;border:2px solid rgba(255,100,100,.5);z-index:15;display:flex;align-items:center;justify-content:center;font-size:20px}
     </style>
 </head>
 <body>
     <div id="container">
         <canvas id="game"></canvas>
         <div id="ui-top">
-            <div class="badge hp">❤️ <span id="hp">100</span></div>
-            <div class="badge coins">🪙 <span id="score">0</span></div>
-            <div class="badge wave">🌊 <span id="wave">1</span></div>
+            <div class="badge r">❤️<span id="hp">100</span></div>
+            <div class="badge g">🪙<span id="score">0</span></div>
+            <div class="badge b">🌊<span id="wave">1</span></div>
         </div>
+        <div id="joystick"><div id="joystick-knob"></div></div>
+        <div id="attack-btn">⚔️</div>
         <div id="overlay">
-            <h1>⚔️ BRAWL STARS MINI</h1>
-            <p>Тапай по экрану — герой идёт туда.<br>Авто-атака ближайших врагов.<br>Собирай кристаллы, выживай!</p>
-            <button class="big-btn" onclick="startGame()">ИГРАТЬ</button>
+            <h1>⚔️ BRAWL MINI</h1>
+            <p>📱 Джойстик + кнопка атаки<br>⌨️ WASD + пробел(рывок)<br>Укрытия защищают от врагов!</p>
+            <button class="bbtn" onclick="startGame()">ИГРАТЬ</button>
         </div>
     </div>
 
     <script>
         const tg=window.Telegram.WebApp;tg.expand();
-        const container=document.getElementById('container');
         const canvas=document.getElementById('game');
         const ctx=canvas.getContext('2d');
-
-        let W,H; // размеры canvas в пикселях
+        const joystick=document.getElementById('joystick');
+        const knob=document.getElementById('joystick-knob');
+        const attackBtn=document.getElementById('attack-btn');
+        
+        let W,H;
         function resize(){
-            let size=Math.min(window.innerWidth,window.innerHeight,500);
-            container.style.width=size+'px';container.style.height=size+'px';
-            canvas.width=size;canvas.height=size;
-            W=size;H=size;
+            let s=Math.min(window.innerWidth,window.innerHeight,500);
+            document.getElementById('container').style.width=s+'px';
+            document.getElementById('container').style.height=s+'px';
+            canvas.width=s;canvas.height=s;
+            W=s;H=s;
         }
         resize();window.addEventListener('resize',resize);
 
-        // Игровые переменные
-        let player={x:W/2,y:H/2,radius:W/20,speed:W/180,hp:100,maxHp:100,invincible:0};
-        let enemies=[],crystals=[],obstacles=[];
+        let player,enemies=[],crystals=[],walls=[],particles=[],bullets=[];
         let score=0,wave=1,gameRunning=false,gameOver=false;
-        let targetPoint=null; // точка, куда идёт игрок
+        let joyActive=false,joyX=0,joyY=0,joyBaseX=0,joyBaseY=0;
+        let attackPressed=false,attackCooldown=0;
+        let keys={w:false,a:false,s:false,d:false,space:false};
+        let dashCooldown=0,weaponLevel=1;
+        let joystickId=null,attackTouchId=null;
 
-        // Препятствия (кусты, камни)
-        const obsPositions=[
-            {x:0.15,y:0.2,w:0.08,h:0.08},{x:0.7,y:0.15,w:0.1,h:0.1},{x:0.4,y:0.5,w:0.12,h:0.12},
-            {x:0.2,y:0.7,w:0.09,h:0.09},{x:0.75,y:0.65,w:0.08,h:0.08},{x:0.55,y:0.8,w:0.11,h:0.11},
-            {x:0.85,y:0.4,w:0.07,h:0.07},{x:0.1,y:0.85,w:0.1,h:0.1}
-        ];
-
-        function createObstacles(){
-            obstacles=obsPositions.map(o=>({
-                x:o.x*W,y:o.y*H,w:o.w*W,h:o.h*H
-            }));
+        function buildWalls(){
+            walls=[];
+            [[W*.25,H*.2,W*.06,H*.12],[W*.55,H*.18,W*.1,H*.06],[W*.35,H*.45,W*.05,H*.12],
+             [W*.7,H*.4,W*.08,H*.08],[W*.15,H*.6,W*.12,H*.05],[W*.5,H*.65,W*.07,H*.1],
+             [W*.8,H*.7,W*.08,H*.08],[W*.25,H*.8,W*.1,H*.06]].forEach(p=>walls.push({x:p[0],y:p[1],w:p[2],h:p[3]}));
         }
 
-        function spawnCrystal(){
-            let attempts=0;
-            while(attempts<50){
-                let cx=Math.random()*W*0.9+W*0.05;
-                let cy=Math.random()*H*0.9+H*0.05;
-                if(!obstacles.some(o=>cx>o.x&&cx<o.x+o.w&&cy>o.y&&cy<o.y+o.h)){
-                    crystals.push({x:cx,y:cy,radius:W/60,value:10+wave*2});
-                    break;
-                }
-                attempts++;
+        function collideWall(x,y,r){
+            for(let w of walls){
+                let cx=Math.max(w.x,Math.min(x,w.x+w.w));
+                let cy=Math.max(w.y,Math.min(y,w.y+w.h));
+                if(Math.hypot(x-cx,y-cy)<r)return true;
             }
+            return false;
+        }
+
+        function pushOut(x,y,r){
+            for(let w of walls){
+                let cx=Math.max(w.x,Math.min(x,w.x+w.w));
+                let cy=Math.max(w.y,Math.min(y,w.y+w.h));
+                let dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy);
+                if(d<r&&d>0){x=cx+dx/d*r;y=cy+dy/d*r;}
+            }
+            return{x,y};
         }
 
         function spawnEnemy(){
             let side=Math.floor(Math.random()*4);
-            let ex,ey;
-            let margin=W*0.1;
-            if(side===0){ex=Math.random()*W;ey=-margin;}
-            else if(side===1){ex=W+margin;ey=Math.random()*H;}
-            else if(side===2){ex=Math.random()*W;ey=H+margin;}
-            else{ex=-margin;ey=Math.random()*H;}
-            let hp=8+wave*4;
-            let speed=W/400+wave*0.02;
-            enemies.push({
-                x:ex,y:ey,radius:W/28,hp:hp,maxHp:hp,speed:speed,damage:5+wave*2,attackCooldown:0
-            });
+            let ex,ey,m=W*.08;
+            if(side===0){ex=Math.random()*W;ey=-m}else if(side===1){ex=W+m;ey=Math.random()*H}
+            else if(side===2){ex=Math.random()*W;ey=H+m}else{ex=-m;ey=Math.random()*H}
+            let hp=10+wave*5,speed=W/500+wave*.015;
+            enemies.push({x:ex,y:ey,r:W/30,hp,maxHp:hp,speed,damage:6+wave*3,attackCd:0,color:'#e53935'});
+        }
+
+        function spawnCrystal(){
+            for(let i=0;i<30;i++){
+                let cx=W*.05+Math.random()*W*.9,cy=H*.05+Math.random()*H*.9;
+                if(!collideWall(cx,cy,W/40)&&!walls.some(w=>cx>w.x&&cx<w.x+w.w&&cy>w.y&&cy<w.y+w.h)){
+                    crystals.push({x:cx,y:cy,r:W/55,value:8+wave*3});break;
+                }
+            }
         }
 
         function startWave(){
             enemies=[];crystals=[];
-            for(let i=0;i<3+wave;i++) spawnEnemy();
-            for(let i=0;i<4;i++) spawnCrystal();
-            wave++;
-            document.getElementById('wave').textContent=wave;
+            for(let i=0;i<3+wave;i++)spawnEnemy();
+            for(let i=0;i<5;i++)spawnCrystal();
+            wave++;document.getElementById('wave').textContent=wave;
         }
 
         function startGame(){
-            player.x=W/2;player.y=H/2;player.hp=player.maxHp;player.invincible=0;
-            score=0;wave=0;gameOver=false;gameRunning=true;
-            targetPoint=null;
-            createObstacles();
-            startWave();
+            player={x:W/2,y:H/2,r:W/22,speed:W/160,hp:100,maxHp:100,inv:0};
+            score=0;wave=0;enemies=[];crystals=[];particles=[];bullets=[];gameOver=false;gameRunning=true;
+            weaponLevel=1;attackCooldown=0;dashCooldown=0;
+            buildWalls();startWave();
             document.getElementById('overlay').style.display='none';
-            document.getElementById('hp').textContent=player.hp;
-            document.getElementById('score').textContent=score;
+            updateUI();
         }
 
         function endGame(){
             gameRunning=false;gameOver=true;
-            document.getElementById('overlay').innerHTML=`<h1>💀</h1><p>Волна ${wave-1}<br>Собрано кристаллов: ${score}🪙</p><button class="big-btn" onclick="startGame()">ЗАНОВО</button>`;
+            document.getElementById('overlay').innerHTML=`<h1>💀</h1><p>Волна ${wave-1}<br>🪙 ${score}</p><button class="bbtn" onclick="startGame()">ЗАНОВО</button>`;
             document.getElementById('overlay').style.display='flex';
         }
 
-        // Управление касанием
-        canvas.addEventListener('click',(e)=>{
-            if(!gameRunning)return;
-            let rect=canvas.getBoundingClientRect();
-            let sx=W/rect.width,sy=H/rect.height;
-            let mx=(e.clientX-rect.left)*sx;
-            let my=(e.clientY-rect.top)*sy;
-            targetPoint={x:mx,y:my};
-        });
-        canvas.addEventListener('touchmove',(e)=>{
-            e.preventDefault();
-            if(!gameRunning)return;
-            let rect=canvas.getBoundingClientRect();
-            let sx=W/rect.width,sy=H/rect.height;
-            let touch=e.touches[0];
-            let mx=(touch.clientX-rect.left)*sx;
-            let my=(touch.clientY-rect.top)*sy;
-            targetPoint={x:mx,y:my};
-        });
-
-        // Игровой цикл
-        function update(){
-            if(!gameRunning)return;
-            // Движение игрока к точке
-            if(targetPoint){
-                let dx=targetPoint.x-player.x;
-                let dy=targetPoint.y-player.y;
-                let dist=Math.hypot(dx,dy);
-                if(dist>2){
-                    let step=Math.min(player.speed,dist);
-                    player.x+=dx/dist*step;
-                    player.y+=dy/dist*step;
-                }else targetPoint=null;
-            }
-            // Ограничение экрана
-            player.x=Math.max(player.radius,Math.min(W-player.radius,player.x));
-            player.y=Math.max(player.radius,Math.min(H-player.radius,player.y));
-            // Столкновение с препятствиями
-            obstacles.forEach(o=>{
-                if(player.x+player.radius>o.x&&player.x-player.radius<o.x+o.w&&
-                   player.y+player.radius>o.y&&player.y-player.radius<o.y+o.h){
-                    // выталкивание
-                    let cx=Math.max(o.x,Math.min(player.x,o.x+o.w));
-                    let cy=Math.max(o.y,Math.min(player.y,o.y+o.h));
-                    let dx=player.x-cx,dy=player.y-cy;
-                    let dist=Math.hypot(dx,dy);
-                    if(dist<player.radius&&dist>0){
-                        player.x=cx+dx/dist*player.radius;
-                        player.y=cy+dy/dist*player.radius;
-                    }
-                }
-            });
-
-            // Враги
-            enemies.forEach(e=>{
-                // Движение к игроку
-                let dx=player.x-e.x,dy=player.y-e.y,dist=Math.hypot(dx,dy);
-                if(dist>e.radius+player.radius){
-                    e.x+=dx/dist*e.speed;
-                    e.y+=dy/dist*e.speed;
-                }
-                // Атака игрока
-                if(dist<e.radius+player.radius&&e.attackCooldown<=0){
-                    if(player.invincible<=0){
-                        player.hp-=e.damage;
-                        player.invincible=15; // кадры неуязвимости
-                    }
-                    e.attackCooldown=40;
-                }
-                if(e.attackCooldown>0)e.attackCooldown--;
-            });
-
-            // Авто-атака игрока по ближайшему врагу
-            if(enemies.length>0){
-                let nearest=null,minDist=W*0.35;
-                enemies.forEach(e=>{
-                    let d=Math.hypot(player.x-e.x,player.y-e.y);
-                    if(d<minDist){minDist=d;nearest=e;}
-                });
-                if(nearest){
-                    // наносим урон каждые 20 кадров (имитация выстрела)
-                    if(!player.attackTimer)player.attackTimer=0;
-                    player.attackTimer++;
-                    if(player.attackTimer>=20){
-                        player.attackTimer=0;
-                        nearest.hp-=15+wave;
-                        // визуальный эффект: линия
-                    }
-                }
-            }
-
-            // Удаление мёртвых врагов
-            enemies=enemies.filter(e=>{
-                if(e.hp<=0){
-                    score+=5+wave;
-                    spawnCrystal();
-                    return false;
-                }
-                return true;
-            });
-
-            // Сбор кристаллов
-            crystals=crystals.filter(c=>{
-                let d=Math.hypot(player.x-c.x,player.y-c.y);
-                if(d<player.radius+c.radius){
-                    score+=c.value;
-                    return false;
-                }
-                return true;
-            });
-
-            // Неуязвимость
-            if(player.invincible>0)player.invincible--;
-
-            // Новая волна, если враги кончились
-            if(enemies.length===0){
-                startWave();
-            }
-
-            // Смерть
-            if(player.hp<=0){
-                endGame();
-            }
-
-            // UI
+        function updateUI(){
             document.getElementById('hp').textContent=Math.max(0,player.hp);
             document.getElementById('score').textContent=score;
         }
 
+        function shoot(){
+            if(!gameRunning||attackCooldown>0)return;
+            attackCooldown=25;
+            let nearest=null,minD=W*.3;
+            enemies.forEach(e=>{let d=Math.hypot(player.x-e.x,player.y-e.y);if(d<minD){minD=d;nearest=e}});
+            if(nearest){
+                let dx=nearest.x-player.x,dy=nearest.y-player.y,d=Math.hypot(dx,dy);
+                bullets.push({x:player.x,y:player.y,vx:dx/d*W/80,vy:dy/d*W/80,damage:12*weaponLevel});
+                for(let i=0;i<2;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:10,color:'#ffcc00'});
+            }
+        }
+
+        function dash(){
+            if(!gameRunning||dashCooldown>0)return;
+            dashCooldown=45;
+            let dx=0,dy=0;
+            if(joyActive){dx=joyX;dy=joyY}
+            else{if(keys.w||keys.ArrowUp)dy=-1;if(keys.s||keys.ArrowDown)dy=1;if(keys.a||keys.ArrowLeft)dx=-1;if(keys.d||keys.ArrowRight)dx=1}
+            if(dx===0&&dy===0)dx=1;
+            let d=Math.hypot(dx,dy);
+            player.x+=dx/d*W*.08;player.y+=dy/d*W*.08;
+            let p=pushOut(player.x,player.y,player.r);player.x=p.x;player.y=p.y;
+            player.inv=8;
+            for(let i=0;i<6;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:12,color:'#fff'});
+        }
+
+        // Джойстик
+        joystick.addEventListener('touchstart',e=>{e.preventDefault();
+            let t=e.changedTouches[0];joyBaseX=t.clientX;joyBaseY=t.clientY;
+            joyActive=true;joystickId=t.identifier;
+        });
+        joystick.addEventListener('touchmove',e=>{e.preventDefault();
+            for(let t of e.changedTouches){if(t.identifier===joystickId){
+                let dx=t.clientX-joyBaseX,dy=t.clientY-joyBaseY,d=Math.hypot(dx,dy);
+                let maxR=35;if(d>maxR){dx=dx/d*maxR;dy=dy/d*maxR}
+                knob.style.transform=`translate(${dx}px,${dy}px)`;
+                joyX=dx/maxR;joyY=dy/maxR;
+            }}
+        });
+        joystick.addEventListener('touchend',e=>{e.preventDefault();
+            for(let t of e.changedTouches){if(t.identifier===joystickId){
+                joyActive=false;joyX=0;joyY=0;knob.style.transform='translate(0,0)';
+            }}
+        });
+
+        // Кнопка атаки
+        attackBtn.addEventListener('touchstart',e=>{e.preventDefault();attackPressed=true;attackTouchId=e.changedTouches[0].identifier;shoot();});
+        attackBtn.addEventListener('touchend',e=>{e.preventDefault();attackPressed=false;});
+
+        // Клавиатура
+        document.addEventListener('keydown',e=>{
+            if(e.key==='w'||e.key==='ArrowUp')keys.w=true;
+            if(e.key==='s'||e.key==='ArrowDown')keys.s=true;
+            if(e.key==='a'||e.key==='ArrowLeft')keys.a=true;
+            if(e.key==='d'||e.key==='ArrowRight')keys.d=true;
+            if(e.key===' ')dash();
+        });
+        document.addEventListener('keyup',e=>{
+            if(e.key==='w'||e.key==='ArrowUp')keys.w=false;
+            if(e.key==='s'||e.key==='ArrowDown')keys.s=false;
+            if(e.key==='a'||e.key==='ArrowLeft')keys.a=false;
+            if(e.key==='d'||e.key==='ArrowRight')keys.d=false;
+        });
+
+        function update(){
+            if(!gameRunning)return;
+            // Движение
+            let dx=0,dy=0;
+            if(joyActive){dx=joyX;dy=joyY}
+            else{
+                if(keys.w||keys.ArrowUp)dy=-1;if(keys.s||keys.ArrowDown)dy=1;
+                if(keys.a||keys.ArrowLeft)dx=-1;if(keys.d||keys.ArrowRight)dx=1;
+            }
+            if(dx!==0||dy!==0){
+                let d=Math.hypot(dx,dy);
+                player.x+=dx/d*player.speed;player.y+=dy/d*player.speed;
+                let p=pushOut(player.x,player.y,player.r);player.x=p.x;player.y=p.y;
+            }
+            player.x=Math.max(player.r,Math.min(W-player.r,player.x));
+            player.y=Math.max(player.r,Math.min(H-player.r,player.y));
+
+            // Атака
+            if(attackPressed)shoot();
+            if(attackCooldown>0)attackCooldown--;
+            if(dashCooldown>0)dashCooldown--;
+            if(player.inv>0)player.inv--;
+
+            // Враги
+            enemies.forEach(e=>{
+                // Ищем путь вокруг стен
+                let dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy);
+                if(d>0){
+                    let nx=dx/d,ny=dy/d;
+                    // Проверяем прямую видимость
+                    let blocked=false;
+                    for(let w of walls){
+                        // Луч пересекает стену?
+                        let tMin=0,tMax=1;
+                        if(Math.abs(dx)>0.001){
+                            let t1=(w.x-e.x)/dx,t2=(w.x+w.w-e.x)/dx;
+                            let tMinX=Math.min(t1,t2),tMaxX=Math.max(t1,t2);
+                            tMin=Math.max(tMin,tMinX);tMax=Math.min(tMax,tMaxX);
+                        }
+                        if(Math.abs(dy)>0.001){
+                            let t1=(w.y-e.y)/dy,t2=(w.y+w.h-e.y)/dy;
+                            let tMinY=Math.min(t1,t2),tMaxY=Math.max(t1,t2);
+                            tMin=Math.max(tMin,tMinY);tMax=Math.min(tMax,tMaxY);
+                        }
+                        if(tMin<tMax&&tMin<1&&tMax>0){blocked=true;break}
+                    }
+                    if(!blocked&&d<W*.35){e.x+=nx*e.speed;e.y+=ny*e.speed}
+                }
+                // Атака
+                if(Math.hypot(player.x-e.x,player.y-e.y)<e.r+player.r&&e.attackCd<=0&&player.inv<=0){
+                    player.hp-=e.damage;player.inv=12;e.attackCd=35;
+                    for(let i=0;i<3;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:8,color:'#ff4444'});
+                }
+                if(e.attackCd>0)e.attackCd--;
+            });
+
+            // Пули
+            bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy});
+            bullets=bullets.filter(b=>b.x>0&&b.x<W&&b.y>0&&b.y<H);
+            enemies.forEach(e=>{
+                bullets=bullets.filter(b=>{
+                    if(Math.hypot(b.x-e.x,b.y-e.y)<e.r+W/60){
+                        e.hp-=b.damage;
+                        for(let i=0;i<2;i++)particles.push({x:b.x,y:b.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:6,color:'#ff0'});
+                        return false;
+                    }
+                    return true;
+                });
+            });
+
+            // Кристаллы
+            crystals=crystals.filter(c=>{
+                if(Math.hypot(player.x-c.x,player.y-c.y)<player.r+c.r){score+=c.value;return false}
+                return true;
+            });
+
+            // Частицы
+            particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life--});
+            particles=particles.filter(p=>p.life>0);
+
+            // Удаление врагов
+            enemies=enemies.filter(e=>{
+                if(e.hp<=0){score+=5+wave;spawnCrystal();for(let i=0;i<5;i++)particles.push({x:e.x,y:e.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:10,color:'#ffd700'});return false}
+                return true;
+            });
+
+            if(enemies.length===0)startWave();
+            if(player.hp<=0)endGame();
+            updateUI();
+        }
+
         function draw(){
             ctx.clearRect(0,0,W,H);
-            // Трава
-            ctx.fillStyle='#4caf50';
-            ctx.fillRect(0,0,W,H);
-            // Сетка травы (узор)
-            ctx.fillStyle='#3e8e41';
-            for(let i=0;i<W;i+=W/12){
-                for(let j=0;j<H;j+=H/12){
-                    if((i+j)%(W/6)===0)ctx.fillRect(i,j,4,4);
-                }
-            }
-            // Препятствия (кусты)
-            obstacles.forEach(o=>{
-                ctx.fillStyle='#2e7d32';
-                ctx.fillRect(o.x,o.y,o.w,o.h);
-                ctx.fillStyle='#1b5e20';
-                ctx.fillRect(o.x+2,o.y+2,o.w-4,o.h-4);
+            ctx.fillStyle='#388E3C';ctx.fillRect(0,0,W,H);
+            // Сетка
+            ctx.fillStyle='#2E7D32';
+            for(let x=0;x<W;x+=W/10)for(let y=0;y<H;y+=H/10)if((x+y)%(W/5)<2)ctx.fillRect(x,y,3,3);
+            // Стены
+            walls.forEach(w=>{
+                ctx.fillStyle='#5D4037';ctx.fillRect(w.x,w.y,w.w,w.h);
+                ctx.fillStyle='#4E342E';ctx.fillRect(w.x+2,w.y+2,w.w-4,w.h-4);
             });
             // Кристаллы
             crystals.forEach(c=>{
-                ctx.fillStyle='#ffd700';
-                ctx.beginPath();ctx.arc(c.x,c.y,c.radius,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#fff';
-                ctx.beginPath();ctx.arc(c.x-c.radius*0.3,c.y-c.radius*0.3,c.radius*0.4,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#FFF8E1';ctx.beginPath();ctx.arc(c.x-c.r*.2,c.y-c.r*.3,c.r*.35,0,Math.PI*2);ctx.fill();
             });
+            // Пули
+            bullets.forEach(b=>{ctx.fillStyle='#FFEB3B';ctx.beginPath();ctx.arc(b.x,b.y,W/120,0,Math.PI*2);ctx.fill()});
             // Враги
             enemies.forEach(e=>{
-                ctx.fillStyle='#d32f2f';
-                ctx.beginPath();ctx.arc(e.x,e.y,e.radius,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#b71c1c';
-                ctx.beginPath();ctx.arc(e.x,e.y,e.radius*0.7,0,Math.PI*2);ctx.fill();
-                // Глаза
-                ctx.fillStyle='#fff';
-                ctx.beginPath();ctx.arc(e.x-e.radius*0.3,e.y-e.radius*0.2,e.radius*0.25,0,Math.PI*2);ctx.fill();
-                ctx.beginPath();ctx.arc(e.x+e.radius*0.3,e.y-e.radius*0.2,e.radius*0.25,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#000';
-                ctx.beginPath();ctx.arc(e.x-e.radius*0.3,e.y-e.radius*0.2,e.radius*0.1,0,Math.PI*2);ctx.fill();
-                ctx.beginPath();ctx.arc(e.x+e.radius*0.3,e.y-e.radius*0.2,e.radius*0.1,0,Math.PI*2);ctx.fill();
-                // HP bar
-                let hpW=e.radius*1.2;
-                ctx.fillStyle='#333';
-                ctx.fillRect(e.x-hpW/2,e.y-e.radius-8,hpW,4);
-                ctx.fillStyle='#ff4444';
-                ctx.fillRect(e.x-hpW/2,e.y-e.radius-8,hpW*(e.hp/e.maxHp),4);
+                ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#b71c1c';ctx.beginPath();ctx.arc(e.x,e.y,e.r*.7,0,Math.PI*2);ctx.fill();
+                // HP
+                let bw=e.r*1.3;ctx.fillStyle='#333';ctx.fillRect(e.x-bw/2,e.y-e.r-7,bw,5);
+                ctx.fillStyle='#f44336';ctx.fillRect(e.x-bw/2,e.y-e.r-7,bw*(e.hp/e.maxHp),5);
             });
             // Игрок
-            if(player.invincible%6<3){ // мерцание при неуязвимости
-                ctx.fillStyle='#2196F3';
-                ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#1565C0';
-                ctx.beginPath();ctx.arc(player.x,player.y,player.radius*0.7,0,Math.PI*2);ctx.fill();
-                // шлем
-                ctx.fillStyle='#fff';
-                ctx.beginPath();ctx.arc(player.x,player.y-player.radius*0.25,player.radius*0.55,Math.PI,0);ctx.fill();
-                ctx.fillStyle='#2196F3';
-                ctx.beginPath();ctx.arc(player.x,player.y-player.radius*0.15,player.radius*0.3,Math.PI,0);ctx.fill();
-                // глаза
-                ctx.fillStyle='#fff';
-                ctx.beginPath();ctx.arc(player.x-player.radius*0.3,player.y-player.radius*0.2,player.radius*0.2,0,Math.PI*2);ctx.fill();
-                ctx.beginPath();ctx.arc(player.x+player.radius*0.3,player.y-player.radius*0.2,player.radius*0.2,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#000';
-                ctx.beginPath();ctx.arc(player.x-player.radius*0.3,player.y-player.radius*0.2,player.radius*0.08,0,Math.PI*2);ctx.fill();
-                ctx.beginPath();ctx.arc(player.x+player.radius*0.3,player.y-player.radius*0.2,player.radius*0.08,0,Math.PI*2);ctx.fill();
+            if(player.inv%6<3){
+                ctx.fillStyle='#1976D2';ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#0D47A1';ctx.beginPath();ctx.arc(player.x,player.y,player.r*.65,0,Math.PI*2);ctx.fill();
+                ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(player.x,player.y-player.r*.2,player.r*.45,Math.PI,0);ctx.fill();
+                ctx.fillStyle='#000';ctx.beginPath();ctx.arc(player.x-player.r*.25,player.y-player.r*.2,player.r*.08,0,Math.PI*2);ctx.fill();
+                ctx.beginPath();ctx.arc(player.x+player.r*.25,player.y-player.r*.2,player.r*.08,0,Math.PI*2);ctx.fill();
             }
+            // Частицы
+            particles.forEach(p=>{ctx.globalAlpha=p.life/12;ctx.fillStyle=p.color;ctx.fillRect(p.x-2,p.y-2,4,4)});
+            ctx.globalAlpha=1;
         }
 
-        function loop(){
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
+        function loop(){update();draw();requestAnimationFrame(loop)}
         loop();
     </script>
 </body>
