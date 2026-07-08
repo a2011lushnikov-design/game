@@ -6,18 +6,20 @@
     <title>Бизнес Магнат</title>
     <style>
         :root {
-            --bg: #0f1119;
-            --card: #1a1d2e;
-            --gold: #ffc107;
+            --bg: #0a0c14;
+            --card: #141829;
+            --gold: #f0b90b;
             --accent: #4caf84;
-            --text: #e0e0e0;
-            --sub: #8a8fa0;
+            --text: #e8e8ee;
+            --sub: #7a7f92;
             --danger: #e05050;
-            --border: #2a2d3e;
+            --border: #1e2235;
+            --card-hover: #1c2140;
+            --glow: rgba(240,185,11,.25);
         }
         *{margin:0;padding:0;box-sizing:border-box}
         body{
-            font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+            font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
             background:var(--bg);
             color:var(--text);
             height:100dvh;
@@ -35,318 +37,371 @@
             height:100dvh;
             display:flex;
             flex-direction:column;
-            background:linear-gradient(180deg, #141729 0%, #0f1119 100%);
+            background:linear-gradient(180deg, #10142a 0%, #0a0c14 100%);
             position:relative;
             overflow:hidden;
         }
         .header{
-            padding:16px 20px 8px;
+            padding:12px 16px 6px;
             display:flex;
-            justify-content:space-between;
             align-items:center;
+            gap:10px;
             z-index:10;
+            background:rgba(10,12,20,.8);
+            backdrop-filter:blur(10px);
         }
-        .balance-block{
-            text-align:center;
-            flex:1;
+        .stats-panel{
+            flex:1;display:flex;flex-direction:column;gap:2px;
         }
-        .balance-label{
-            font-size:11px;
-            color:var(--sub);
-            text-transform:uppercase;
-            letter-spacing:1px;
+        .balance-row{
+            display:flex;align-items:baseline;gap:8px;
         }
         .balance{
-            font-size:36px;
-            font-weight:700;
-            color:var(--gold);
-            text-shadow:0 0 20px rgba(255,193,7,.3);
-            transition:transform .15s;
+            font-size:32px;font-weight:800;color:var(--gold);
+            text-shadow:0 0 20px var(--glow);transition:transform .12s;
+            line-height:1;
         }
-        .balance.pulse{transform:scale(1.05)}
-        .income{
-            font-size:12px;
-            color:var(--accent);
-            margin-top:2px;
+        .balance.pop{transform:scale(1.06)}
+        .income-badge{
+            font-size:11px;color:var(--accent);background:rgba(76,175,132,.1);
+            padding:3px 8px;border-radius:10px;font-weight:600;
         }
+        .prestige-btn{
+            background:linear-gradient(135deg,#7c4dff,#651fff);
+            border:none;color:#fff;padding:6px 12px;border-radius:16px;
+            font-size:11px;font-weight:700;cursor:pointer;
+            box-shadow:0 2px 10px rgba(124,77,255,.3);
+        }
+        .prestige-btn:active{transform:scale(.94)}
         .main-area{
-            flex:1;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            position:relative;
-            min-height:200px;
+            flex:1;display:flex;align-items:center;justify-content:center;
+            position:relative;min-height:180px;
         }
+        .clicker-container{
+            position:relative;display:flex;align-items:center;justify-content:center;
+        }
+        .clicker-ring{
+            position:absolute;width:160px;height:160px;border-radius:50%;
+            border:3px solid rgba(240,185,11,.15);animation:ringPulse 3s infinite;
+        }
+        @keyframes ringPulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.08);opacity:.7}}
         .clicker{
-            width:140px;
-            height:140px;
-            border-radius:50%;
-            background:radial-gradient(circle at 40% 35%, #5c6bc0, #283593);
-            box-shadow:0 8px 32px rgba(92,107,192,.35), inset 0 -4px 8px rgba(0,0,0,.3);
-            cursor:pointer;
-            transition:transform .12s cubic-bezier(.18,.89,.32,1.28);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            position:relative;
+            width:130px;height:130px;border-radius:50%;
+            background:radial-gradient(circle at 40% 35%, #5c6bc0, #1a237e);
+            box-shadow:0 0 40px rgba(92,107,192,.4),inset 0 -4px 8px rgba(0,0,0,.3);
+            cursor:pointer;transition:transform .1s cubic-bezier(.18,.89,.32,1.28);
+            display:flex;align-items:center;justify-content:center;z-index:1;
         }
-        .clicker:active{transform:scale(.9)}
-        .clicker svg{width:60px;height:60px;fill:white;opacity:.9}
+        .clicker:active{transform:scale(.88)}
+        .clicker svg{width:50px;height:50px;fill:rgba(255,255,255,.85)}
+        .click-value{
+            position:absolute;bottom:-28px;font-size:12px;color:var(--sub);
+            text-align:center;width:100%;
+        }
         .float-text{
-            position:absolute;
-            font-weight:700;
-            font-size:20px;
-            color:var(--gold);
-            pointer-events:none;
-            animation:floatUp .9s ease-out forwards;
+            position:absolute;font-weight:800;font-size:22px;color:var(--gold);
+            pointer-events:none;animation:floatUp .8s ease-out forwards;
+            text-shadow:0 0 12px rgba(240,185,11,.6);z-index:20;
         }
         @keyframes floatUp{
-            0%{opacity:1;transform:translateY(0) scale(1)}
-            100%{opacity:0;transform:translateY(-80px) scale(1.3)}
+            0%{opacity:1;transform:translate(-50%,0) scale(1)}
+            100%{opacity:0;transform:translate(-50%,-90px) scale(1.4)}
         }
-        .business-list{
-            flex:1;
-            overflow-y:auto;
-            padding:8px 16px 16px;
-            display:flex;
-            flex-direction:column;
-            gap:8px;
-            -webkit-overflow-scrolling:touch;
+        .particle{
+            position:absolute;pointer-events:none;
+            width:5px;height:5px;border-radius:50%;
+            animation:particleBurst .5s ease-out forwards;
+            z-index:15;
         }
-        .business-card{
-            background:var(--card);
-            border-radius:14px;
-            padding:14px 16px;
-            display:flex;
-            align-items:center;
-            gap:12px;
-            border:1px solid var(--border);
-            cursor:pointer;
-            transition:all .2s;
-            position:relative;
-            overflow:hidden;
-        }
-        .business-card:active{background:#1f2240;border-color:#3a3d5c}
-        .business-card.owned{border-color:#4caf8470}
-        .business-icon{
-            width:46px;height:46px;border-radius:12px;
-            display:flex;align-items:center;justify-content:center;
-            font-size:22px;flex-shrink:0;
-        }
-        .business-info{flex:1;min-width:0}
-        .business-name{font-weight:600;font-size:14px;margin-bottom:2px}
-        .business-income{font-size:11px;color:var(--accent)}
-        .business-count{font-size:12px;color:var(--sub)}
-        .business-cost{
-            font-weight:700;font-size:14px;color:var(--gold);
-            white-space:nowrap;
-        }
-        .progress-bar{
-            position:absolute;bottom:0;left:0;height:3px;
-            background:var(--accent);transition:width .3s;border-radius:0 2px 2px 0;
+        @keyframes particleBurst{
+            0%{opacity:1;transform:translate(0,0) scale(1)}
+            100%{opacity:0;transform:translate(var(--x),var(--y)) scale(0)}
         }
         .tabs{
-            display:flex;gap:0;padding:0 16px;margin-bottom:4px;
+            display:flex;padding:0 12px;gap:4px;
         }
         .tab{
-            flex:1;text-align:center;padding:10px 0;font-size:13px;
+            flex:1;text-align:center;padding:10px 0;font-size:12px;font-weight:600;
             color:var(--sub);border-bottom:2px solid transparent;
             cursor:pointer;transition:all .2s;
         }
         .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-        .manager-card{
+        .list-area{
+            flex:1;overflow-y:auto;padding:8px 12px 12px;
+            -webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;
+        }
+        .biz-card{
+            background:var(--card);border-radius:14px;padding:14px;
+            display:flex;align-items:center;gap:12px;border:1px solid var(--border);
+            cursor:pointer;transition:all .18s;position:relative;
+        }
+        .biz-card:active{background:var(--card-hover);border-color:#3a3d5c}
+        .biz-card.owned{border-color:rgba(76,175,132,.4)}
+        .biz-card.flash{animation:cardFlash .5s ease-out}
+        @keyframes cardFlash{0%{background:#2a3050}100%{background:var(--card)}}
+        .biz-icon{
+            width:44px;height:44px;border-radius:12px;display:flex;
+            align-items:center;justify-content:center;font-size:18px;
+            font-weight:700;flex-shrink:0;color:#fff;
+        }
+        .biz-info{flex:1;min-width:0}
+        .biz-name{font-weight:600;font-size:13px;margin-bottom:1px}
+        .biz-meta{font-size:10px;color:var(--sub);display:flex;gap:6px}
+        .biz-cost{
+            font-weight:700;font-size:13px;white-space:nowrap;
+        }
+        .biz-progress{
+            position:absolute;bottom:0;left:0;height:3px;
+            background:var(--accent);border-radius:0 2px 2px 0;
+            transition:width .4s;opacity:.7;
+        }
+        .mgr-card{
             background:var(--card);border-radius:12px;padding:12px;
             border:1px solid var(--border);display:flex;align-items:center;
-            gap:10px;margin-bottom:8px;
+            gap:10px;cursor:pointer;transition:all .18s;
         }
-        .manager-avatar{
-            width:40px;height:40px;border-radius:50%;
-            display:flex;align-items:center;justify-content:center;
-            font-size:18px;flex-shrink:0;
+        .mgr-card:active{background:var(--card-hover)}
+        .mgr-avatar{
+            width:38px;height:38px;border-radius:50%;display:flex;
+            align-items:center;justify-content:center;font-size:16px;
+            flex-shrink:0;color:#fff;font-weight:700;
         }
-        .notification{
-            position:fixed;top:20px;left:50%;transform:translateX(-50%);
-            background:#222640;color:#fff;padding:10px 20px;border-radius:20px;
-            font-size:13px;z-index:100;animation:slideDown .4s ease-out;
-            box-shadow:0 4px 16px rgba(0,0,0,.5);
+        .achievement-toast{
+            position:fixed;top:60px;left:50%;transform:translateX(-50%);
+            background:#1a1f35;color:#fff;padding:12px 20px;border-radius:16px;
+            font-size:13px;font-weight:600;z-index:200;border:1px solid var(--gold);
+            box-shadow:0 8px 30px rgba(0,0,0,.6);animation:toastIn .5s ease-out,toastOut .5s 2.5s ease-in forwards;
+            text-align:center;
         }
-        @keyframes slideDown{
-            0%{opacity:0;transform:translateX(-50%) translateY(-30px)}
-            100%{opacity:1;transform:translateX(-50%) translateY(0)}
+        @keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(-20px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+        @keyframes toastOut{0%{opacity:1}100%{opacity:0}}
+        .daily-bonus{
+            background:linear-gradient(135deg,#1a1f35,#252a45);
+            border-radius:14px;padding:14px;margin:8px 12px;
+            border:1px solid var(--gold);text-align:center;
+            cursor:pointer;transition:all .2s;
         }
-        .particle{
-            position:absolute;pointer-events:none;
-            width:6px;height:6px;border-radius:50%;
-            animation:particleFly .6s ease-out forwards;
-        }
-        @keyframes particleFly{
-            0%{opacity:1;transform:translate(0,0) scale(1)}
-            100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}
-        }
-        ::-webkit-scrollbar{width:0}
+        .daily-bonus:active{transform:scale(.97)}
+        .daily-title{font-weight:700;color:var(--gold);font-size:14px}
+        .daily-sub{font-size:11px;color:var(--sub);margin-top:2px}
     </style>
 </head>
 <body>
 <div id="app">
     <div class="header">
-        <div class="balance-block">
-            <div class="balance-label">Баланс</div>
-            <div class="balance" id="balance">0</div>
-            <div class="income" id="income">+0/сек</div>
+        <div class="stats-panel">
+            <div class="balance-row">
+                <div class="balance" id="balance">0</div>
+                <div class="income-badge" id="incomeBadge">+0/с</div>
+            </div>
         </div>
+        <button class="prestige-btn" id="prestigeBtn" onclick="prestige()">↑ Престиж</button>
     </div>
     <div class="main-area" id="mainArea">
-        <div class="clicker" id="clicker">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <div class="clicker-container">
+            <div class="clicker-ring"></div>
+            <div class="clicker" id="clicker">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <div class="click-value">+<span id="clickVal">1</span> за клик</div>
         </div>
     </div>
+    <div id="dailyBlock"></div>
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('business')">Бизнес</div>
-        <div class="tab" onclick="switchTab('managers')">Менеджеры</div>
+        <div class="tab active" data-tab="biz" onclick="switchTab('biz')">Бизнес</div>
+        <div class="tab" data-tab="mgr" onclick="switchTab('mgr')">Менеджеры</div>
+        <div class="tab" data-tab="ach" onclick="switchTab('ach')">Достижения</div>
     </div>
-    <div class="business-list" id="businessList"></div>
+    <div class="list-area" id="listArea"></div>
 </div>
 <script>
-const game = {
-    money: 0,
-    totalEarned: 0,
-    incomePerSec: 0,
-    clickValue: 1,
+const G = {
+    money: 0, totalEarned: 0, incomePerSec: 0, clickValue: 1,
+    prestigeLevel: 0, prestigeMultiplier: 1, dailyClaimed: false, lastSave: Date.now(),
     businesses: [
-        {id:'stand',name:'Лимонадный стенд',icon:'#ff9800',baseCost:10,cost:10,income:0.5,owned:0,color:'#ff980030'},
-        {id:'shop',name:'Магазин',icon:'#2196f3',baseCost:80,cost:80,income:4,owned:0,color:'#2196f330'},
-        {id:'cafe',name:'Кафе',icon:'#e91e63',baseCost:500,cost:500,income:20,owned:0,color:'#e91e6330'},
-        {id:'factory',name:'Фабрика',icon:'#607d8b',baseCost:3000,cost:3000,income:100,owned:0,color:'#607d8b30'},
-        {id:'bank',name:'Банк',icon:'#ffc107',baseCost:20000,cost:20000,income:600,owned:0,color:'#ffc10730'},
-        {id:'airport',name:'Аэропорт',icon:'#00bcd4',baseCost:150000,cost:150000,income:4000,owned:0,color:'#00bcd430'},
-        {id:'city',name:'Небоскрёб',icon:'#9c27b0',baseCost:1000000,cost:1000000,income:25000,owned:0,color:'#9c27b030'},
-        {id:'island',name:'Остров',icon:'#4caf84',baseCost:8000000,cost:8000000,income:150000,owned:0,color:'#4caf8430'},
+        {id:'stand',name:'Лимонадный стенд',icon:'L',baseCost:10,cost:10,income:0.5,owned:0,color:'#ff9800'},
+        {id:'shop',name:'Магазин',icon:'M',baseCost:80,cost:80,income:4,owned:0,color:'#2196f3'},
+        {id:'cafe',name:'Кафе',icon:'C',baseCost:500,cost:500,income:20,owned:0,color:'#e91e63'},
+        {id:'factory',name:'Фабрика',icon:'F',baseCost:3000,cost:3000,income:100,owned:0,color:'#607d8b'},
+        {id:'bank',name:'Банк',icon:'B',baseCost:20000,cost:20000,income:600,owned:0,color:'#ffc107'},
+        {id:'airport',name:'Аэропорт',icon:'A',baseCost:150000,cost:150000,income:4000,owned:0,color:'#00bcd4'},
+        {id:'city',name:'Небоскрёб',icon:'N',baseCost:1000000,cost:1000000,income:25000,owned:0,color:'#9c27b0'},
+        {id:'island',name:'Остров',icon:'O',baseCost:8000000,cost:8000000,income:150000,owned:0,color:'#4caf84'},
     ],
     managers: [
-        {id:'mgr1',name:'Продавец',icon:'👤',businessId:'stand',cost:50,owned:false,color:'#ff9800'},
-        {id:'mgr2',name:'Бариста',icon:'👤',businessId:'shop',cost:300,owned:false,color:'#2196f3'},
-        {id:'mgr3',name:'Шеф-повар',icon:'👤',businessId:'cafe',cost:2000,owned:false,color:'#e91e63'},
-        {id:'mgr4',name:'Инженер',icon:'👤',businessId:'factory',cost:12000,owned:false,color:'#607d8b'},
+        {id:'m1',name:'Продавец',businessId:'stand',cost:50,owned:false,color:'#ff9800'},
+        {id:'m2',name:'Бариста',businessId:'shop',cost:300,owned:false,color:'#2196f3'},
+        {id:'m3',name:'Шеф',businessId:'cafe',cost:2000,owned:false,color:'#e91e63'},
+        {id:'m4',name:'Инженер',businessId:'factory',cost:12000,owned:false,color:'#607d8b'},
+        {id:'m5',name:'Директор',businessId:'bank',cost:80000,owned:false,color:'#ffc107'},
     ],
-    currentTab:'business'
+    achievements: [
+        {id:'first_biz',name:'Первый бизнес',desc:'Купите 1 бизнес',check:()=>G.businesses.reduce((s,b)=>s+b.owned,0)>=1,unlocked:false},
+        {id:'biz10',name:'Предприниматель',desc:'Купите 10 бизнесов',check:()=>G.businesses.reduce((s,b)=>s+b.owned,0)>=10,unlocked:false},
+        {id:'biz50',name:'Магнат',desc:'Купите 50 бизнесов',check:()=>G.businesses.reduce((s,b)=>s+b.owned,0)>=50,unlocked:false},
+        {id:'earn1k',name:'Тысячник',desc:'Заработайте 1,000',check:()=>G.totalEarned>=1000,unlocked:false},
+        {id:'earn1m',name:'Миллионер',desc:'Заработайте 1,000,000',check:()=>G.totalEarned>=1e6,unlocked:false},
+        {id:'prestige1',name:'Перерождение',desc:'Сделайте престиж',check:()=>G.prestigeLevel>=1,unlocked:false},
+    ],
+    tab:'biz'
 };
 
-function save(){localStorage.setItem('magnatSave',JSON.stringify({money:game.money,totalEarned:game.totalEarned,incomePerSec:game.incomePerSec,clickValue:game.clickValue,businesses:game.businesses.map(b=>({id:b.id,owned:b.owned,cost:b.cost})),managers:game.managers}));}
-function load(){
-    const d=localStorage.getItem('magnatSave');
+function saveGame(){
+    localStorage.setItem('magnat_v2',JSON.stringify({
+        money:G.money,totalEarned:G.totalEarned,incomePerSec:G.incomePerSec,
+        clickValue:G.clickValue,prestigeLevel:G.prestigeLevel,
+        prestigeMultiplier:G.prestigeMultiplier,dailyClaimed:G.dailyClaimed,
+        businesses:G.businesses.map(b=>({id:b.id,owned:b.owned,cost:b.cost})),
+        managers:G.managers.map(m=>({id:m.id,owned:m.owned})),
+        achievements:G.achievements.map(a=>({id:a.id,unlocked:a.unlocked}))
+    }));
+}
+function loadGame(){
+    const d=localStorage.getItem('magnat_v2');
     if(!d)return;
     const s=JSON.parse(d);
-    game.money=s.money;game.totalEarned=s.totalEarned;game.incomePerSec=s.incomePerSec;game.clickValue=s.clickValue;
-    s.businesses.forEach(sb=>{const b=game.businesses.find(x=>x.id===sb.id);if(b){b.owned=sb.owned;b.cost=sb.cost}});
-    if(s.managers)game.managers=s.managers;
+    G.money=s.money;G.totalEarned=s.totalEarned;G.incomePerSec=s.incomePerSec;
+    G.clickValue=s.clickValue;G.prestigeLevel=s.prestigeLevel||0;
+    G.prestigeMultiplier=s.prestigeMultiplier||1;G.dailyClaimed=s.dailyClaimed||false;
+    s.businesses.forEach(sb=>{const b=G.businesses.find(x=>x.id===sb.id);if(b){b.owned=sb.owned;b.cost=sb.cost}});
+    if(s.managers)s.managers.forEach(sm=>{const m=G.managers.find(x=>x.id===sm.id);if(m)m.owned=sm.owned});
+    if(s.achievements)s.achievements.forEach(sa=>{const a=G.achievements.find(x=>x.id===sa.id);if(a)a.unlocked=sa.unlocked});
+    G.prestigeMultiplier=1+G.prestigeLevel*0.5;
 }
 
-function switchTab(t){game.currentTab=t;document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='business')||(i===1&&t==='managers')));renderList();}
+function formatNum(n){if(n>=1e9)return (n/1e9).toFixed(2)+'B';if(n>=1e6)return (n/1e6).toFixed(2)+'M';if(n>=1e3)return (n/1e3).toFixed(1)+'K';return Math.floor(n).toString()}
 
-function buyBusiness(id){
-    const b=game.businesses.find(x=>x.id===id);
-    if(!b||game.money<b.cost)return notify('Недостаточно средств');
-    game.money-=b.cost;b.owned++;game.incomePerSec+=b.income;
+function switchTab(t){G.tab=t;document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));renderList()}
+
+function buyBiz(id){
+    const b=G.businesses.find(x=>x.id===id);
+    if(!b||G.money<b.cost)return;
+    G.money-=b.cost;b.owned++;G.incomePerSec+=b.income*G.prestigeMultiplier;
     b.cost=Math.floor(b.baseCost*Math.pow(1.12,b.owned));
-    game.clickValue=1+Math.floor(game.totalEarned/1000);
-    save();updateUI();renderList();
+    G.clickValue=1+Math.floor(G.totalEarned/800);
+    const card=document.querySelector(`[data-biz="${id}"]`);
+    if(card){card.classList.add('flash');setTimeout(()=>card.classList.remove('flash'),500)}
+    checkAchievements();saveGame();updateUI();renderList();
 }
 
-function buyManager(id){
-    const m=game.managers.find(x=>x.id===id);
-    if(!m||m.owned||game.money<m.cost)return notify(m&&m.owned?'Уже нанят':'Недостаточно средств');
-    game.money-=m.cost;m.owned=true;
-    const b=game.businesses.find(x=>x.id===m.businessId);
-    if(b)game.incomePerSec+=b.income*Math.max(1,b.owned);
-    save();updateUI();renderList();
+function buyMgr(id){
+    const m=G.managers.find(x=>x.id===id);
+    if(!m||m.owned||G.money<m.cost)return;
+    G.money-=m.cost;m.owned=true;
+    const b=G.businesses.find(x=>x.id===m.businessId);
+    if(b)G.incomePerSec+=b.income*Math.max(1,b.owned)*G.prestigeMultiplier;
+    checkAchievements();saveGame();updateUI();renderList();
+}
+
+function prestige(){
+    if(G.totalEarned<50000)return notify('Нужно 50,000 общего дохода');
+    G.prestigeLevel++;G.prestigeMultiplier=1+G.prestigeLevel*0.5;
+    G.money=0;G.incomePerSec=0;G.clickValue=1;
+    G.businesses.forEach(b=>{b.owned=0;b.cost=b.baseCost});
+    G.managers.forEach(m=>m.owned=false);
+    G.totalEarned=0;
+    checkAchievements();saveGame();updateUI();renderList();
+    notify('Престиж '+G.prestigeLevel+'! Множитель x'+G.prestigeMultiplier.toFixed(1));
+}
+
+function claimDaily(){
+    if(G.dailyClaimed)return;
+    const bonus=500*Math.pow(2,G.prestigeLevel);
+    G.money+=bonus;G.totalEarned+=bonus;G.dailyClaimed=true;
+    saveGame();updateUI();renderDaily();
+    notify('+'+formatNum(bonus)+' ежедневный бонус!');
 }
 
 function notify(msg){
-    const el=document.createElement('div');el.className='notification';el.textContent=msg;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+    const el=document.createElement('div');el.className='achievement-toast';el.textContent=msg;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
 }
 
-function formatMoney(n){
-    if(n>=1e9)return (n/1e9).toFixed(2)+'B';
-    if(n>=1e6)return (n/1e6).toFixed(2)+'M';
-    if(n>=1e3)return (n/1e3).toFixed(1)+'K';
-    return Math.floor(n).toString();
+function checkAchievements(){
+    G.achievements.forEach(a=>{if(!a.unlocked&&a.check()){a.unlocked=true;notify('Достижение: '+a.name)}});
 }
 
 function updateUI(){
     const bal=document.getElementById('balance');
-    bal.textContent=formatMoney(game.money);
-    bal.classList.add('pulse');setTimeout(()=>bal.classList.remove('pulse'),150);
-    document.getElementById('income').textContent='+'+formatMoney(game.incomePerSec)+'/сек';
+    bal.textContent=formatNum(G.money);
+    bal.classList.add('pop');setTimeout(()=>bal.classList.remove('pop'),120);
+    document.getElementById('incomeBadge').textContent='+'+formatNum(G.incomePerSec)+'/с';
+    document.getElementById('clickVal').textContent=formatNum(G.clickValue);
+    document.getElementById('prestigeBtn').textContent='↑ Престиж '+G.prestigeLevel;
+}
+
+function renderDaily(){
+    const block=document.getElementById('dailyBlock');
+    if(G.dailyClaimed){block.innerHTML='';return}
+    block.innerHTML=`<div class="daily-bonus" onclick="claimDaily()"><div class="daily-title">Ежедневный бонус</div><div class="daily-sub">+${formatNum(500*Math.pow(2,G.prestigeLevel))} монет</div></div>`;
 }
 
 function renderList(){
-    const list=document.getElementById('businessList');
-    if(game.currentTab==='business'){
-        list.innerHTML=game.businesses.map(b=>{
-            const canBuy=game.money>=b.cost;
-            const progress=b.owned>0?(game.incomePerSec?Math.min(100,(b.income*b.owned/game.incomePerSec*100)):0):0;
-            return`<div class="business-card${b.owned>0?' owned':''}" onclick="buyBusiness('${b.id}')">
-                <div class="business-icon" style="background:${b.color}">${String.fromCharCode(9733+game.businesses.indexOf(b))}</div>
-                <div class="business-info">
-                    <div class="business-name">${b.name}</div>
-                    <div class="business-income">+${formatMoney(b.income)}/сек</div>
-                    <div class="business-count">${b.owned>0?'Владею: '+b.owned:''}</div>
-                </div>
-                <div class="business-cost" style="color:${canBuy?'var(--gold)':'var(--sub)'}">${formatMoney(b.cost)}</div>
-                ${b.owned>0?`<div class="progress-bar" style="width:${progress}%"></div>`:''}
+    const area=document.getElementById('listArea');
+    if(G.tab==='biz'){
+        area.innerHTML=G.businesses.map(b=>{
+            const canBuy=G.money>=b.cost;
+            return`<div class="biz-card${b.owned>0?' owned':''}" data-biz="${b.id}" onclick="buyBiz('${b.id}')">
+                <div class="biz-icon" style="background:${b.color}40;color:${b.color}">${b.icon}</div>
+                <div class="biz-info"><div class="biz-name">${b.name}</div><div class="biz-meta"><span>+${formatNum(b.income*G.prestigeMultiplier)}/с</span>${b.owned>0?`<span>• ${b.owned} шт</span>`:''}</div></div>
+                <div class="biz-cost" style="color:${canBuy?'var(--gold)':'var(--sub)'}">${formatNum(b.cost)}</div>
+                ${b.owned>0?`<div class="biz-progress" style="width:${Math.min(100,b.owned*5)}%"></div>`:''}
+            </div>`;
+        }).join('');
+    }else if(G.tab==='mgr'){
+        area.innerHTML=G.managers.map(m=>{
+            const b=G.businesses.find(x=>x.id===m.businessId);
+            const canBuy=!m.owned&&G.money>=m.cost;
+            return`<div class="mgr-card" onclick="buyMgr('${m.id}')">
+                <div class="mgr-avatar" style="background:${m.color}30;color:${m.color}">${m.name[0]}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--sub)">Авто: ${b?b.name:''}</div></div>
+                <div style="font-weight:700;font-size:13px;color:${m.owned?'var(--accent)':canBuy?'var(--gold)':'var(--sub)'}">${m.owned?'Нанят':formatNum(m.cost)}</div>
             </div>`;
         }).join('');
     }else{
-        list.innerHTML=game.managers.map(m=>{
-            const b=game.businesses.find(x=>x.id===m.businessId);
-            const canBuy=!m.owned&&game.money>=m.cost;
-            return`<div class="manager-card" onclick="buyManager('${m.id}')">
-                <div class="manager-avatar" style="background:${m.color}30">${String.fromCharCode(9786+game.managers.indexOf(m))}</div>
-                <div style="flex:1"><div style="font-weight:600;font-size:13px">${m.name}</div><div style="font-size:11px;color:var(--sub)">Автоматизирует ${b?b.name:''}</div></div>
-                <div class="business-cost" style="color:${m.owned?'var(--accent)':canBuy?'var(--gold)':'var(--sub)'}">${m.owned?'Нанят':formatMoney(m.cost)}</div>
-            </div>`;
-        }).join('');
+        area.innerHTML=G.achievements.map(a=>`<div class="biz-card" style="opacity:${a.unlocked?1:.4}"><div style="font-size:22px;width:44px;text-align:center">${a.unlocked?'?'':'?'}</div><div style="flex:1"><div style="font-weight:600">${a.name}</div><div style="font-size:10px;color:var(--sub)">${a.desc}</div></div></div>`).join('');
     }
 }
 
 // Клик
 document.getElementById('clicker').addEventListener('click',function(e){
-    game.money+=game.clickValue;game.totalEarned+=game.clickValue;
-    updateUI();renderList();save();
-    // Анимация
-    const ft=document.createElement('div');ft.className='float-text';ft.textContent='+'+formatMoney(game.clickValue);
+    const val=G.clickValue*G.prestigeMultiplier;
+    G.money+=val;G.totalEarned+=val;
+    updateUI();renderList();checkAchievements();saveGame();
     const rect=this.getBoundingClientRect();
-    ft.style.left=(e.clientX-rect.left-20)+'px';ft.style.top=(e.clientY-rect.top-30)+'px';
-    document.getElementById('mainArea').appendChild(ft);setTimeout(()=>ft.remove(),900);
-    // Частицы
-    for(let i=0;i<6;i++){
+    const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+    const ft=document.createElement('div');ft.className='float-text';
+    ft.textContent='+'+formatNum(val);ft.style.left=cx+'px';ft.style.top=cy+'px';
+    document.getElementById('mainArea').appendChild(ft);setTimeout(()=>ft.remove(),800);
+    for(let i=0;i<8;i++){
         const p=document.createElement('div');p.className='particle';
-        p.style.cssText=`--dx:${(Math.random()-.5)*80}px;--dy:${(Math.random()-.5)*80}px;background:#ffc107;left:${e.clientX-rect.left}px;top:${e.clientY-rect.top}px`;
-        document.getElementById('mainArea').appendChild(p);setTimeout(()=>p.remove(),600);
+        const angle=Math.random()*Math.PI*2,dist=30+Math.random()*50;
+        p.style.cssText=`--x:${Math.cos(angle)*dist}px;--y:${Math.sin(angle)*dist}px;background:#f0b90b;left:${cx}px;top:${cy}px`;
+        document.getElementById('mainArea').appendChild(p);setTimeout(()=>p.remove(),500);
     }
 });
 
-// Автодоход
+// Пассивный доход
 setInterval(()=>{
-    if(game.incomePerSec>0){game.money+=game.incomePerSec/10;game.totalEarned+=game.incomePerSec/10}
+    if(G.incomePerSec>0){G.money+=G.incomePerSec/20;G.totalEarned+=G.incomePerSec/20}
     updateUI();
-},100);
+},50);
 
-// Автосохранение
-setInterval(save,5000);
-
-// Менеджеры работают
+// Менеджеры
 setInterval(()=>{
-    game.managers.forEach(m=>{
-        if(!m.owned)return;
-        const b=game.businesses.find(x=>x.id===m.businessId);
-        if(b&&b.owned>0){game.money+=b.income*b.owned/2;game.totalEarned+=b.income*b.owned/2}
-    });
+    G.managers.forEach(m=>{if(!m.owned)return;const b=G.businesses.find(x=>x.id===m.businessId);if(b&&b.owned>0){G.money+=b.income*b.owned*G.prestigeMultiplier/4;G.totalEarned+=b.income*b.owned*G.prestigeMultiplier/4}});
+    checkAchievements();
 },1000);
 
-// Инициализация
-load();updateUI();renderList();
+// Ежедневный сброс
+setInterval(()=>{const today=new Date().toDateString();const saved=localStorage.getItem('dailyDate');if(saved!==today){G.dailyClaimed=false;localStorage.setItem('dailyDate',today);renderDaily()}},30000);
+
+// Сохранение
+setInterval(saveGame,5000);
+
+// Старт
+loadGame();updateUI();renderList();renderDaily();
+const today=new Date().toDateString();if(localStorage.getItem('dailyDate')!==today){G.dailyClaimed=false;localStorage.setItem('dailyDate',today);renderDaily()}
 </script>
 </body>
 </html>
