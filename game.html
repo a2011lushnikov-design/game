@@ -3,619 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shadow Quest RPG</title>
+    <title>Бизнес Магнат</title>
     <style>
         :root {
-            --bg: #0a0a0f;
-            --panel: #12121a;
-            --gold: #ffd700;
-            --xp: #00ff88;
-            --hp: #ff4757;
-            --mana: #5352ed;
-            --border: #252535;
+            --bg: #0f1119;
+            --card: #1a1d2e;
+            --gold: #ffc107;
+            --accent: #4caf84;
             --text: #e0e0e0;
-            --accent: #7c3aed;
-            --btn: #1e1e2e;
+            --sub: #8a8fa0;
+            --danger: #e05050;
+            --border: #2a2d3e;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            height:100dvh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            user-select:none;
+            -webkit-user-select:none;
+            -webkit-tap-highlight-color:transparent;
+            overflow:hidden;
         }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            touch-action: manipulation;
+        #app{
+            width:100%;
+            max-width:480px;
+            height:100dvh;
+            display:flex;
+            flex-direction:column;
+            background:linear-gradient(180deg, #141729 0%, #0f1119 100%);
+            position:relative;
+            overflow:hidden;
         }
-        #app {
-            width: 100%;
-            max-width: 480px;
-            height: 100vh;
-            background: var(--bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 40px rgba(124,58,237,0.3);
+        .header{
+            padding:16px 20px 8px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            z-index:10;
         }
-        .screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            padding: 20px;
-            overflow-y: auto;
+        .balance-block{
+            text-align:center;
+            flex:1;
         }
-        .screen.active {
-            display: flex;
+        .balance-label{
+            font-size:11px;
+            color:var(--sub);
+            text-transform:uppercase;
+            letter-spacing:1px;
         }
-
-        /* Главное меню */
-        #menu {
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle at center, #1a1025, #0a0a0f);
-            gap: 20px;
+        .balance{
+            font-size:36px;
+            font-weight:700;
+            color:var(--gold);
+            text-shadow:0 0 20px rgba(255,193,7,.3);
+            transition:transform .15s;
         }
-        .logo {
-            font-size: 2.8rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255,215,0,0.5);
+        .balance.pulse{transform:scale(1.05)}
+        .income{
+            font-size:12px;
+            color:var(--accent);
+            margin-top:2px;
         }
-        .class-select {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .main-area{
+            flex:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:relative;
+            min-height:200px;
         }
-        .class-card {
-            background: var(--panel);
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            padding: 20px;
-            width: 120px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
+        .clicker{
+            width:140px;
+            height:140px;
+            border-radius:50%;
+            background:radial-gradient(circle at 40% 35%, #5c6bc0, #283593);
+            box-shadow:0 8px 32px rgba(92,107,192,.35), inset 0 -4px 8px rgba(0,0,0,.3);
+            cursor:pointer;
+            transition:transform .12s cubic-bezier(.18,.89,.32,1.28);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:relative;
         }
-        .class-card.selected {
-            border-color: var(--gold);
-            box-shadow: 0 0 20px rgba(255,215,0,0.5);
-            transform: scale(1.05);
+        .clicker:active{transform:scale(.9)}
+        .clicker svg{width:60px;height:60px;fill:white;opacity:.9}
+        .float-text{
+            position:absolute;
+            font-weight:700;
+            font-size:20px;
+            color:var(--gold);
+            pointer-events:none;
+            animation:floatUp .9s ease-out forwards;
         }
-        .class-icon {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 8px;
+        @keyframes floatUp{
+            0%{opacity:1;transform:translateY(0) scale(1)}
+            100%{opacity:0;transform:translateY(-80px) scale(1.3)}
         }
-        .btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 40px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 1px;
-            width: 100%;
-            text-align: center;
+        .business-list{
+            flex:1;
+            overflow-y:auto;
+            padding:8px 16px 16px;
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            -webkit-overflow-scrolling:touch;
         }
-        .btn:hover {
-            filter: brightness(1.2);
-            transform: translateY(-2px);
+        .business-card{
+            background:var(--card);
+            border-radius:14px;
+            padding:14px 16px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            border:1px solid var(--border);
+            cursor:pointer;
+            transition:all .2s;
+            position:relative;
+            overflow:hidden;
         }
-        .btn:active {
-            transform: scale(0.96);
+        .business-card:active{background:#1f2240;border-color:#3a3d5c}
+        .business-card.owned{border-color:#4caf8470}
+        .business-icon{
+            width:46px;height:46px;border-radius:12px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:22px;flex-shrink:0;
         }
-
-        /* Игровой экран */
-        #game {
-            padding-bottom: 80px;
+        .business-info{flex:1;min-width:0}
+        .business-name{font-weight:600;font-size:14px;margin-bottom:2px}
+        .business-income{font-size:11px;color:var(--accent)}
+        .business-count{font-size:12px;color:var(--sub)}
+        .business-cost{
+            font-weight:700;font-size:14px;color:var(--gold);
+            white-space:nowrap;
         }
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            gap: 10px;
+        .progress-bar{
+            position:absolute;bottom:0;left:0;height:3px;
+            background:var(--accent);transition:width .3s;border-radius:0 2px 2px 0;
         }
-        .stat-bar {
-            flex: 1;
-            background: #1a1a2e;
-            border-radius: 20px;
-            height: 14px;
-            overflow: hidden;
+        .tabs{
+            display:flex;gap:0;padding:0 16px;margin-bottom:4px;
         }
-        .stat-fill {
-            height: 100%;
-            border-radius: 20px;
-            transition: width 0.3s;
+        .tab{
+            flex:1;text-align:center;padding:10px 0;font-size:13px;
+            color:var(--sub);border-bottom:2px solid transparent;
+            cursor:pointer;transition:all .2s;
         }
-        .hp-fill { background: var(--hp); }
-        .mana-fill { background: var(--mana); }
-        .xp-fill { background: var(--xp); }
-        .enemy-area {
-            background: var(--panel);
-            border-radius: 24px;
-            padding: 20px;
-            text-align: center;
-            margin: 15px 0;
-            border: 1px solid var(--border);
-            position: relative;
+        .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+        .manager-card{
+            background:var(--card);border-radius:12px;padding:12px;
+            border:1px solid var(--border);display:flex;align-items:center;
+            gap:10px;margin-bottom:8px;
         }
-        .enemy-sprite {
-            font-size: 5rem;
-            display: block;
-            animation: float 2s ease-in-out infinite;
+        .manager-avatar{
+            width:40px;height:40px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            font-size:18px;flex-shrink:0;
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+        .notification{
+            position:fixed;top:20px;left:50%;transform:translateX(-50%);
+            background:#222640;color:#fff;padding:10px 20px;border-radius:20px;
+            font-size:13px;z-index:100;animation:slideDown .4s ease-out;
+            box-shadow:0 4px 16px rgba(0,0,0,.5);
         }
-        .actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        @keyframes slideDown{
+            0%{opacity:0;transform:translateX(-50%) translateY(-30px)}
+            100%{opacity:1;transform:translateX(-50%) translateY(0)}
         }
-        .skill-btn {
-            background: var(--btn);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 15px;
-            color: var(--text);
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .particle{
+            position:absolute;pointer-events:none;
+            width:6px;height:6px;border-radius:50%;
+            animation:particleFly .6s ease-out forwards;
         }
-        .skill-btn:active {
-            background: var(--accent);
+        @keyframes particleFly{
+            0%{opacity:1;transform:translate(0,0) scale(1)}
+            100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}
         }
-        .skill-btn .emoji {
-            font-size: 1.8rem;
-        }
-
-        /* Нижнее меню */
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
-            background: var(--panel);
-            display: flex;
-            border-top: 1px solid var(--border);
-            z-index: 10;
-        }
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.75rem;
-            gap: 4px;
-        }
-        .nav-item.active {
-            color: var(--gold);
-            background: rgba(255,215,0,0.1);
-        }
-        .nav-emoji {
-            font-size: 1.4rem;
-        }
-
-        /* Мастерская / инвентарь / события */
-        .panel {
-            background: var(--panel);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-        .item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .item:last-child {
-            border-bottom: none;
-        }
-        .gold-text {
-            color: var(--gold);
-            font-weight: bold;
-        }
-
-        /* Логи */
-        .log {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #aaa;
-        }
+        ::-webkit-scrollbar{width:0}
     </style>
 </head>
 <body>
 <div id="app">
-    <!-- Главное меню -->
-    <div id="menu" class="screen active">
-        <div class="logo">⚔️ Shadow Quest</div>
-        <div class="class-select" id="classSelect">
-            <div class="class-card" data-class="warrior">
-                <span class="class-icon">🛡️</span>
-                <strong>Воин</strong>
-                <p style="font-size:0.7rem;color:#aaa">HP +30%</p>
-            </div>
-            <div class="class-card" data-class="mage">
-                <span class="class-icon">🧙</span>
-                <strong>Маг</strong>
-                <p style="font-size:0.7rem;color:#aaa">Мана +40%</p>
-            </div>
-            <div class="class-card" data-class="archer">
-                <span class="class-icon">🏹</span>
-                <strong>Лучник</strong>
-                <p style="font-size:0.7rem;color:#aaa">Крит 20%</p>
-            </div>
-        </div>
-        <button class="btn" id="startBtn">Начать приключение</button>
-    </div>
-
-    <!-- Игровой экран -->
-    <div id="game" class="screen">
-        <div class="stats">
-            <div style="flex:1"><small>❤️ HP</small><div class="stat-bar"><div class="stat-fill hp-fill" id="hpFill" style="width:100%"></div></div></div>
-            <div style="flex:1"><small>💧 MP</small><div class="stat-bar"><div class="stat-fill mana-fill" id="manaFill" style="width:100%"></div></div></div>
-            <div style="flex:1"><small>⭐ XP</small><div class="stat-bar"><div class="stat-fill xp-fill" id="xpFill" style="width:0%"></div></div></div>
-        </div>
-        <div class="enemy-area">
-            <span class="enemy-sprite" id="enemySprite">👾</span>
-            <h3 id="enemyName">Слизень</h3>
-            <p id="enemyHP">❤️ 30/30</p>
-        </div>
-        <div class="actions" id="actions">
-            <button class="skill-btn" onclick="attack()"><span class="emoji">⚔️</span> Атака</button>
-            <button class="skill-btn" onclick="skill('fireball')"><span class="emoji">🔥</span> Огненный шар (5 MP)</button>
-            <button class="skill-btn" onclick="skill('heal')"><span class="emoji">💚</span> Исцеление (8 MP)</button>
-            <button class="skill-btn" onclick="skill('poison')"><span class="emoji">☠️</span> Яд (6 MP)</button>
-        </div>
-        <div class="log" id="log"></div>
-    </div>
-
-    <!-- Мастерская -->
-    <div id="workshop" class="screen">
-        <h2 style="margin-bottom:15px;">🔨 Мастерская</h2>
-        <div class="panel">
-            <div class="item"><span>⚔️ Улучшить оружие (+3 атаки)</span> <span class="gold-text">150 💰</span> <button onclick="upgrade('weapon')">Купить</button></div>
-            <div class="item"><span>🛡️ Улучшить броню (+5 HP)</span> <span class="gold-text">200 💰</span> <button onclick="upgrade('armor')">Купить</button></div>
-            <div class="item"><span>💍 Кольцо маны (+2 MP/сек)</span> <span class="gold-text">300 💰</span> <button onclick="upgrade('ring')">Купить</button></div>
-        </div>
-        <p style="margin-top:10px;">💰 Золото: <span id="goldDisplay">0</span></p>
-    </div>
-
-    <!-- Инвентарь -->
-    <div id="inventory" class="screen">
-        <h2>🎒 Инвентарь</h2>
-        <div class="panel" id="invList"></div>
-    </div>
-
-    <!-- События -->
-    <div id="events" class="screen">
-        <h2>🎲 События</h2>
-        <div class="panel" style="text-align:center;">
-            <p>🎰 Колесо удачи</p>
-            <button onclick="spinWheel()" class="btn" style="margin:10px 0;">Крутить (50 💰)</button>
-            <p id="wheelResult"></p>
-        </div>
-        <div class="panel" style="margin-top:15px;text-align:center;">
-            <p>📦 Сундук с сокровищами</p>
-            <button onclick="openChest()" class="btn" style="margin:10px 0;">Открыть (бесплатно раз в 5 мин)</button>
+    <div class="header">
+        <div class="balance-block">
+            <div class="balance-label">Баланс</div>
+            <div class="balance" id="balance">0</div>
+            <div class="income" id="income">+0/сек</div>
         </div>
     </div>
-
-    <!-- Боссы -->
-    <div id="bosses" class="screen">
-        <h2>🐉 Боссы</h2>
-        <div class="panel" id="bossList"></div>
+    <div class="main-area" id="mainArea">
+        <div class="clicker" id="clicker">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
     </div>
-
-    <!-- Нижнее меню -->
-    <div class="bottom-nav">
-        <div class="nav-item active" data-screen="game" onclick="switchScreen('game')"><span class="nav-emoji">⚔️</span>Бой</div>
-        <div class="nav-item" data-screen="inventory" onclick="switchScreen('inventory')"><span class="nav-emoji">🎒</span>Вещи</div>
-        <div class="nav-item" data-screen="workshop" onclick="switchScreen('workshop')"><span class="nav-emoji">🔨</span>Мастер</div>
-        <div class="nav-item" data-screen="events" onclick="switchScreen('events')"><span class="nav-emoji">🎲</span>События</div>
-        <div class="nav-item" data-screen="bosses" onclick="switchScreen('bosses')"><span class="nav-emoji">🐉</span>Боссы</div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('business')">Бизнес</div>
+        <div class="tab" onclick="switchTab('managers')">Менеджеры</div>
     </div>
+    <div class="business-list" id="businessList"></div>
 </div>
-
 <script>
-    // ---------- СОСТОЯНИЕ ИГРЫ ----------
-    const player = {
-        class: 'warrior',
-        level: 1,
-        xp: 0,
-        xpToNext: 50,
-        hp: 100,
-        maxHp: 100,
-        mana: 50,
-        maxMana: 50,
-        attack: 12,
-        defense: 5,
-        gold: 0,
-        critChance: 5,
-        inventory: [],
-        upgrades: { weapon: 0, armor: 0, ring: 0 },
-        manaRegen: 1,
-    };
+const game = {
+    money: 0,
+    totalEarned: 0,
+    incomePerSec: 0,
+    clickValue: 1,
+    businesses: [
+        {id:'stand',name:'Лимонадный стенд',icon:'#ff9800',baseCost:10,cost:10,income:0.5,owned:0,color:'#ff980030'},
+        {id:'shop',name:'Магазин',icon:'#2196f3',baseCost:80,cost:80,income:4,owned:0,color:'#2196f330'},
+        {id:'cafe',name:'Кафе',icon:'#e91e63',baseCost:500,cost:500,income:20,owned:0,color:'#e91e6330'},
+        {id:'factory',name:'Фабрика',icon:'#607d8b',baseCost:3000,cost:3000,income:100,owned:0,color:'#607d8b30'},
+        {id:'bank',name:'Банк',icon:'#ffc107',baseCost:20000,cost:20000,income:600,owned:0,color:'#ffc10730'},
+        {id:'airport',name:'Аэропорт',icon:'#00bcd4',baseCost:150000,cost:150000,income:4000,owned:0,color:'#00bcd430'},
+        {id:'city',name:'Небоскрёб',icon:'#9c27b0',baseCost:1000000,cost:1000000,income:25000,owned:0,color:'#9c27b030'},
+        {id:'island',name:'Остров',icon:'#4caf84',baseCost:8000000,cost:8000000,income:150000,owned:0,color:'#4caf8430'},
+    ],
+    managers: [
+        {id:'mgr1',name:'Продавец',icon:'👤',businessId:'stand',cost:50,owned:false,color:'#ff9800'},
+        {id:'mgr2',name:'Бариста',icon:'👤',businessId:'shop',cost:300,owned:false,color:'#2196f3'},
+        {id:'mgr3',name:'Шеф-повар',icon:'👤',businessId:'cafe',cost:2000,owned:false,color:'#e91e63'},
+        {id:'mgr4',name:'Инженер',icon:'👤',businessId:'factory',cost:12000,owned:false,color:'#607d8b'},
+    ],
+    currentTab:'business'
+};
 
-    let currentEnemy = null;
-    let bossEncounter = null;
-    let bossDefeated = [];
-    const enemies = [
-        { name: 'Слизень', emoji: '👾', hp: 25, attack: 8, xp: 20, gold: 10 },
-        { name: 'Гоблин', emoji: '👺', hp: 40, attack: 12, xp: 35, gold: 18 },
-        { name: 'Скелет', emoji: '💀', hp: 55, attack: 15, xp: 50, gold: 25 },
-        { name: 'Темный маг', emoji: '🧙‍♂️', hp: 45, attack: 20, xp: 60, gold: 30 },
-        { name: 'Огр', emoji: '👹', hp: 80, attack: 18, xp: 80, gold: 40 },
-    ];
-    const bosses = [
-        { name: 'Ледяной дракон', emoji: '🐉', hp: 200, attack: 25, xp: 150, gold: 100, levelReq: 5 },
-        { name: 'Король-лич', emoji: '👑💀', hp: 300, attack: 32, xp: 250, gold: 200, levelReq: 10 },
-        { name: 'Тёмный рыцарь', emoji: '⚫🛡️', hp: 400, attack: 40, xp: 400, gold: 350, levelReq: 15 },
-    ];
+function save(){localStorage.setItem('magnatSave',JSON.stringify({money:game.money,totalEarned:game.totalEarned,incomePerSec:game.incomePerSec,clickValue:game.clickValue,businesses:game.businesses.map(b=>({id:b.id,owned:b.owned,cost:b.cost})),managers:game.managers}));}
+function load(){
+    const d=localStorage.getItem('magnatSave');
+    if(!d)return;
+    const s=JSON.parse(d);
+    game.money=s.money;game.totalEarned=s.totalEarned;game.incomePerSec=s.incomePerSec;game.clickValue=s.clickValue;
+    s.businesses.forEach(sb=>{const b=game.businesses.find(x=>x.id===sb.id);if(b){b.owned=sb.owned;b.cost=sb.cost}});
+    if(s.managers)game.managers=s.managers;
+}
 
-    function updateUI() {
-        document.getElementById('hpFill').style.width = (player.hp / player.maxHp * 100) + '%';
-        document.getElementById('manaFill').style.width = (player.mana / player.maxMana * 100) + '%';
-        document.getElementById('xpFill').style.width = (player.xp / player.xpToNext * 100) + '%';
-        document.getElementById('goldDisplay').innerText = player.gold;
-        renderInventory();
-        renderBosses();
+function switchTab(t){game.currentTab=t;document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='business')||(i===1&&t==='managers')));renderList();}
+
+function buyBusiness(id){
+    const b=game.businesses.find(x=>x.id===id);
+    if(!b||game.money<b.cost)return notify('Недостаточно средств');
+    game.money-=b.cost;b.owned++;game.incomePerSec+=b.income;
+    b.cost=Math.floor(b.baseCost*Math.pow(1.12,b.owned));
+    game.clickValue=1+Math.floor(game.totalEarned/1000);
+    save();updateUI();renderList();
+}
+
+function buyManager(id){
+    const m=game.managers.find(x=>x.id===id);
+    if(!m||m.owned||game.money<m.cost)return notify(m&&m.owned?'Уже нанят':'Недостаточно средств');
+    game.money-=m.cost;m.owned=true;
+    const b=game.businesses.find(x=>x.id===m.businessId);
+    if(b)game.incomePerSec+=b.income*Math.max(1,b.owned);
+    save();updateUI();renderList();
+}
+
+function notify(msg){
+    const el=document.createElement('div');el.className='notification';el.textContent=msg;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+}
+
+function formatMoney(n){
+    if(n>=1e9)return (n/1e9).toFixed(2)+'B';
+    if(n>=1e6)return (n/1e6).toFixed(2)+'M';
+    if(n>=1e3)return (n/1e3).toFixed(1)+'K';
+    return Math.floor(n).toString();
+}
+
+function updateUI(){
+    const bal=document.getElementById('balance');
+    bal.textContent=formatMoney(game.money);
+    bal.classList.add('pulse');setTimeout(()=>bal.classList.remove('pulse'),150);
+    document.getElementById('income').textContent='+'+formatMoney(game.incomePerSec)+'/сек';
+}
+
+function renderList(){
+    const list=document.getElementById('businessList');
+    if(game.currentTab==='business'){
+        list.innerHTML=game.businesses.map(b=>{
+            const canBuy=game.money>=b.cost;
+            const progress=b.owned>0?(game.incomePerSec?Math.min(100,(b.income*b.owned/game.incomePerSec*100)):0):0;
+            return`<div class="business-card${b.owned>0?' owned':''}" onclick="buyBusiness('${b.id}')">
+                <div class="business-icon" style="background:${b.color}">${String.fromCharCode(9733+game.businesses.indexOf(b))}</div>
+                <div class="business-info">
+                    <div class="business-name">${b.name}</div>
+                    <div class="business-income">+${formatMoney(b.income)}/сек</div>
+                    <div class="business-count">${b.owned>0?'Владею: '+b.owned:''}</div>
+                </div>
+                <div class="business-cost" style="color:${canBuy?'var(--gold)':'var(--sub)'}">${formatMoney(b.cost)}</div>
+                ${b.owned>0?`<div class="progress-bar" style="width:${progress}%"></div>`:''}
+            </div>`;
+        }).join('');
+    }else{
+        list.innerHTML=game.managers.map(m=>{
+            const b=game.businesses.find(x=>x.id===m.businessId);
+            const canBuy=!m.owned&&game.money>=m.cost;
+            return`<div class="manager-card" onclick="buyManager('${m.id}')">
+                <div class="manager-avatar" style="background:${m.color}30">${String.fromCharCode(9786+game.managers.indexOf(m))}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:13px">${m.name}</div><div style="font-size:11px;color:var(--sub)">Автоматизирует ${b?b.name:''}</div></div>
+                <div class="business-cost" style="color:${m.owned?'var(--accent)':canBuy?'var(--gold)':'var(--sub)'}">${m.owned?'Нанят':formatMoney(m.cost)}</div>
+            </div>`;
+        }).join('');
     }
+}
 
-    function addLog(msg) {
-        const log = document.getElementById('log');
-        log.innerHTML += msg + '<br>';
-        log.scrollTop = log.scrollHeight;
+// Клик
+document.getElementById('clicker').addEventListener('click',function(e){
+    game.money+=game.clickValue;game.totalEarned+=game.clickValue;
+    updateUI();renderList();save();
+    // Анимация
+    const ft=document.createElement('div');ft.className='float-text';ft.textContent='+'+formatMoney(game.clickValue);
+    const rect=this.getBoundingClientRect();
+    ft.style.left=(e.clientX-rect.left-20)+'px';ft.style.top=(e.clientY-rect.top-30)+'px';
+    document.getElementById('mainArea').appendChild(ft);setTimeout(()=>ft.remove(),900);
+    // Частицы
+    for(let i=0;i<6;i++){
+        const p=document.createElement('div');p.className='particle';
+        p.style.cssText=`--dx:${(Math.random()-.5)*80}px;--dy:${(Math.random()-.5)*80}px;background:#ffc107;left:${e.clientX-rect.left}px;top:${e.clientY-rect.top}px`;
+        document.getElementById('mainArea').appendChild(p);setTimeout(()=>p.remove(),600);
     }
+});
 
-    // ---------- КЛАССЫ И СТАРТ ----------
-    document.querySelectorAll('.class-card').forEach(card => {
-        card.addEventListener('click', () => {
-            document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            player.class = card.dataset.class;
-            applyClassBonuses();
-        });
-    });
-
-    function applyClassBonuses() {
-        if (player.class === 'warrior') {
-            player.maxHp = 130; player.hp = 130; player.attack = 14; player.maxMana = 40; player.mana = 40;
-        } else if (player.class === 'mage') {
-            player.maxHp = 90; player.hp = 90; player.attack = 10; player.maxMana = 70; player.mana = 70;
-        } else if (player.class === 'archer') {
-            player.maxHp = 100; player.hp = 100; player.attack = 13; player.maxMana = 50; player.mana = 50; player.critChance = 20;
-        }
-        updateUI();
-    }
-
-    document.getElementById('startBtn').addEventListener('click', () => {
-        switchScreen('game');
-        spawnEnemy();
-    });
-
-    // ---------- ЭКРАНЫ ----------
-    function switchScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector(`.nav-item[data-screen="${screenId}"]`).classList.add('active');
-        if (screenId === 'bosses') renderBosses();
-        if (screenId === 'inventory') renderInventory();
-        if (screenId === 'workshop') document.getElementById('goldDisplay').innerText = player.gold;
-    }
-
-    // ---------- ВРАГИ И БОЙ ----------
-    function spawnEnemy() {
-        if (bossEncounter) return;
-        const template = enemies[Math.floor(Math.random() * enemies.length)];
-        currentEnemy = { ...template, hp: template.hp };
-        document.getElementById('enemySprite').innerText = template.emoji;
-        document.getElementById('enemyName').innerText = template.name;
-        document.getElementById('enemyHP').innerText = `❤️ ${currentEnemy.hp}/${template.hp}`;
-    }
-
-    function attack() {
-        if (!currentEnemy && !bossEncounter) return spawnEnemy();
-        const target = bossEncounter || currentEnemy;
-        let damage = player.attack + player.upgrades.weapon * 3;
-        if (Math.random() * 100 < player.critChance) { damage *= 2; addLog('💥 Критический удар!'); }
-        target.hp -= damage;
-        addLog(`Вы нанесли ${damage} урона.`);
-        if (target.hp <= 0) {
-            addLog(`✅ ${target.name} повержен!`);
-            player.xp += target.xp;
-            player.gold += target.gold;
-            checkLevelUp();
-            if (bossEncounter) {
-                bossDefeated.push(bossEncounter.name);
-                bossEncounter = null;
-            }
-            currentEnemy = null;
-            spawnEnemy();
-        } else {
-            enemyTurn(target);
-        }
-        updateUI();
-        if (target) document.getElementById('enemyHP').innerText = `❤️ ${target.hp}/${target.name === currentEnemy?.name ? enemies.find(e=>e.name===target.name)?.hp : bosses.find(b=>b.name===target.name)?.hp}`;
-    }
-
-    function skill(type) {
-        if (bossEncounter && bossEncounter.hp <= 0) return;
-        const target = bossEncounter || currentEnemy;
-        if (!target) return;
-        if (type === 'fireball' && player.mana >= 5) {
-            player.mana -= 5;
-            let dmg = 18 + player.upgrades.weapon * 2;
-            target.hp -= dmg;
-            addLog(`🔥 Огненный шар нанёс ${dmg} урона.`);
-        } else if (type === 'heal' && player.mana >= 8) {
-            player.mana -= 8;
-            player.hp = Math.min(player.maxHp, player.hp + 20);
-            addLog(`💚 Исцеление +20 HP.`);
-        } else if (type === 'poison' && player.mana >= 6) {
-            player.mana -= 6;
-            target.hp -= 10;
-            addLog(`☠️ Яд нанёс 10 урона и будет действовать 2 хода.`);
-        } else {
-            addLog('Недостаточно маны!');
-            return;
-        }
-        if (target.hp <= 0) {
-            addLog(`✅ ${target.name} уничтожен!`);
-            player.xp += target.xp;
-            player.gold += target.gold;
-            checkLevelUp();
-            if (bossEncounter) {
-                bossDefeated.push(bossEncounter.name);
-                bossEncounter = null;
-            }
-            currentEnemy = null;
-            spawnEnemy();
-        } else {
-            enemyTurn(target);
-        }
-        updateUI();
-        if (target) document.getElementById('enemyHP').innerText = `❤️ ${target.hp}/${target.name === currentEnemy?.name ? enemies.find(e=>e.name===target.name)?.hp : bosses.find(b=>b.name===target.name)?.hp}`;
-    }
-
-    function enemyTurn(enemy) {
-        let damage = enemy.attack - player.defense - player.upgrades.armor * 2;
-        if (damage < 2) damage = 2;
-        player.hp -= damage;
-        addLog(`${enemy.name} атакует на ${damage} урона.`);
-        if (player.hp <= 0) {
-            addLog('💀 Вы погибли... Возрождение через 3 сек.');
-            player.hp = player.maxHp;
-            player.mana = player.maxMana;
-            currentEnemy = null;
-            bossEncounter = null;
-            spawnEnemy();
-        }
-        player.mana = Math.min(player.maxMana, player.mana + player.manaRegen + player.upgrades.ring);
-        updateUI();
-    }
-
-    function checkLevelUp() {
-        while (player.xp >= player.xpToNext) {
-            player.xp -= player.xpToNext;
-            player.level++;
-            player.xpToNext = Math.floor(player.xpToNext * 1.5);
-            player.maxHp += 8;
-            player.hp = player.maxHp;
-            player.maxMana += 4;
-            player.mana = player.maxMana;
-            player.attack += 2;
-            addLog(`🎉 Уровень повышен! Теперь уровень ${player.level}.`);
-            if (player.level % 5 === 0 && !bossEncounter) {
-                addLog('🐉 Появился босс!');
-                spawnBoss();
-            }
-        }
-        updateUI();
-    }
-
-    function spawnBoss() {
-        const available = bosses.filter(b => b.levelReq <= player.level && !bossDefeated.includes(b.name));
-        if (available.length === 0) return;
-        const boss = available[Math.floor(Math.random() * available.length)];
-        bossEncounter = { ...boss, hp: boss.hp };
-        currentEnemy = null;
-        document.getElementById('enemySprite').innerText = boss.emoji;
-        document.getElementById('enemyName').innerText = boss.name + ' (БОСС)';
-        document.getElementById('enemyHP').innerText = `❤️ ${bossEncounter.hp}/${boss.hp}`;
-    }
-
-    // ---------- МАСТЕРСКАЯ ----------
-    function upgrade(type) {
-        const costs = { weapon: 150, armor: 200, ring: 300 };
-        if (player.gold >= costs[type]) {
-            player.gold -= costs[type];
-            player.upgrades[type]++;
-            addLog(`🔨 Улучшение ${type} куплено!`);
-            updateUI();
-        } else {
-            addLog('Недостаточно золота!');
-        }
-    }
-
-    // ---------- ИНВЕНТАРЬ ----------
-    function renderInventory() {
-        const list = document.getElementById('invList');
-        list.innerHTML = '';
-        if (player.inventory.length === 0) list.innerHTML = '<p>Пусто</p>';
-        player.inventory.forEach(item => {
-            list.innerHTML += `<div class="item"><span>${item}</span></div>`;
-        });
-    }
-
-    // ---------- БОССЫ ----------
-    function renderBosses() {
-        const list = document.getElementById('bossList');
-        list.innerHTML = bosses.map(b => `
-            <div class="item">
-                <span>${b.emoji} ${b.name} (Ур.${b.levelReq})</span>
-                <span>${bossDefeated.includes(b.name) ? '✅' : '❌'}</span>
-            </div>
-        `).join('');
-    }
-
-    // ---------- СОБЫТИЯ ----------
-    function spinWheel() {
-        if (player.gold < 50) return alert('Недостаточно золота!');
-        player.gold -= 50;
-        const rewards = ['10 золота', '20 XP', 'Зелье здоровья', '50 золота', 'Кинжал', 'Ничего'];
-        const result = rewards[Math.floor(Math.random() * rewards.length)];
-        document.getElementById('wheelResult').innerText = '🎁 ' + result;
-        if (result.includes('золота')) player.gold += parseInt(result);
-        else if (result.includes('XP')) player.xp += 20;
-        else if (result === 'Зелье здоровья') player.hp = player.maxHp;
-        else if (result === 'Кинжал') player.inventory.push('Кинжал (+2 атаки)');
-        updateUI();
-    }
-
-    function openChest() {
-        const rewards = ['100 золота', 'Эликсир маны', 'Амулет крита', '30 XP'];
-        const result = rewards[Math.floor(Math.random() * rewards.length)];
-        document.getElementById('wheelResult').innerText = '📦 ' + result;
-        if (result.includes('золота')) player.gold += 100;
-        else if (result === 'Эликсир маны') player.mana = player.maxMana;
-        else if (result === 'Амулет крита') { player.critChance += 5; addLog('🎯 Шанс крита +5%'); }
-        else if (result.includes('XP')) player.xp += 30;
-        updateUI();
-    }
-
-    // Инициализация
-    applyClassBonuses();
-    document.querySelector('.class-card[data-class="warrior"]').classList.add('selected');
+// Автодоход
+setInterval(()=>{
+    if(game.incomePerSec>0){game.money+=game.incomePerSec/10;game.totalEarned+=game.incomePerSec/10}
     updateUI();
+},100);
+
+// Автосохранение
+setInterval(save,5000);
+
+// Менеджеры работают
+setInterval(()=>{
+    game.managers.forEach(m=>{
+        if(!m.owned)return;
+        const b=game.businesses.find(x=>x.id===m.businessId);
+        if(b&&b.owned>0){game.money+=b.income*b.owned/2;game.totalEarned+=b.income*b.owned/2}
+    });
+},1000);
+
+// Инициализация
+load();updateUI();renderList();
 </script>
 </body>
 </html>
