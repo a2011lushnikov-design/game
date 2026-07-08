@@ -1,339 +1,621 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Brawl Mini</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Shadow Quest RPG</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        html,body{width:100%;height:100%;overflow:hidden;background:#0d1b0d;font-family:'Segoe UI',system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-        body{display:flex;flex-direction:column;align-items:center;justify-content:center}
-        #container{position:relative;width:100vw;height:100vw;max-width:500px;max-height:500px;margin:0 auto;background:#1a3a1a;border-radius:16px;overflow:hidden;box-shadow:0 0 30px rgba(0,180,0,.3)}
-        canvas{display:block;width:100%;height:100%}
-        #ui-top{position:absolute;top:6px;left:6px;right:6px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;gap:4px}
-        .badge{background:rgba(0,0,0,.75);color:#fff;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:4px}
-        .badge.r{color:#ff5555}.badge.g{color:#ffd700}.badge.b{color:#a0d2ff}
-        #overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:10px}
-        #overlay h1{font-size:24px;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,.5)}
-        #overlay p{color:#aaa;font-size:12px;text-align:center;padding:0 15px}
-        .bbtn{background:linear-gradient(135deg,#f0a500,#ffd000);color:#000;border:none;padding:10px 25px;border-radius:25px;font-size:14px;font-weight:bold;cursor:pointer}
-        .bbtn:active{transform:scale(.93)}
-        #joystick{position:absolute;bottom:30px;left:30px;width:80px;height:80px;background:rgba(255,255,255,.1);border-radius:50%;border:2px solid rgba(255,255,255,.2);z-index:15;display:flex;align-items:center;justify-content:center}
-        #joystick-knob{width:35px;height:35px;background:rgba(255,255,255,.4);border-radius:50%}
-        #attack-btn{position:absolute;bottom:40px;right:30px;width:60px;height:60px;background:rgba(255,80,80,.3);border-radius:50%;border:2px solid rgba(255,100,100,.5);z-index:15;display:flex;align-items:center;justify-content:center;font-size:20px}
+        :root {
+            --bg: #0a0a0f;
+            --panel: #12121a;
+            --gold: #ffd700;
+            --xp: #00ff88;
+            --hp: #ff4757;
+            --mana: #5352ed;
+            --border: #252535;
+            --text: #e0e0e0;
+            --accent: #7c3aed;
+            --btn: #1e1e2e;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        #app {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(124,58,237,0.3);
+        }
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* Главное меню */
+        #menu {
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1025, #0a0a0f);
+            gap: 20px;
+        }
+        .logo {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,215,0,0.5);
+        }
+        .class-select {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .class-card {
+            background: var(--panel);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            width: 120px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .class-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            transform: scale(1.05);
+        }
+        .class-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+        }
+        .btn:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Игровой экран */
+        #game {
+            padding-bottom: 80px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        .stat-bar {
+            flex: 1;
+            background: #1a1a2e;
+            border-radius: 20px;
+            height: 14px;
+            overflow: hidden;
+        }
+        .stat-fill {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+        .hp-fill { background: var(--hp); }
+        .mana-fill { background: var(--mana); }
+        .xp-fill { background: var(--xp); }
+        .enemy-area {
+            background: var(--panel);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .enemy-sprite {
+            font-size: 5rem;
+            display: block;
+            animation: float 2s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .skill-btn {
+            background: var(--btn);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 15px;
+            color: var(--text);
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .skill-btn:active {
+            background: var(--accent);
+        }
+        .skill-btn .emoji {
+            font-size: 1.8rem;
+        }
+
+        /* Нижнее меню */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--panel);
+            display: flex;
+            border-top: 1px solid var(--border);
+            z-index: 10;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.75rem;
+            gap: 4px;
+        }
+        .nav-item.active {
+            color: var(--gold);
+            background: rgba(255,215,0,0.1);
+        }
+        .nav-emoji {
+            font-size: 1.4rem;
+        }
+
+        /* Мастерская / инвентарь / события */
+        .panel {
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .gold-text {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Логи */
+        .log {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
-    <div id="container">
-        <canvas id="game"></canvas>
-        <div id="ui-top">
-            <div class="badge r">❤️<span id="hp">100</span></div>
-            <div class="badge g">🪙<span id="score">0</span></div>
-            <div class="badge b">🌊<span id="wave">1</span></div>
+<div id="app">
+    <!-- Главное меню -->
+    <div id="menu" class="screen active">
+        <div class="logo">⚔️ Shadow Quest</div>
+        <div class="class-select" id="classSelect">
+            <div class="class-card" data-class="warrior">
+                <span class="class-icon">🛡️</span>
+                <strong>Воин</strong>
+                <p style="font-size:0.7rem;color:#aaa">HP +30%</p>
+            </div>
+            <div class="class-card" data-class="mage">
+                <span class="class-icon">🧙</span>
+                <strong>Маг</strong>
+                <p style="font-size:0.7rem;color:#aaa">Мана +40%</p>
+            </div>
+            <div class="class-card" data-class="archer">
+                <span class="class-icon">🏹</span>
+                <strong>Лучник</strong>
+                <p style="font-size:0.7rem;color:#aaa">Крит 20%</p>
+            </div>
         </div>
-        <div id="joystick"><div id="joystick-knob"></div></div>
-        <div id="attack-btn">⚔️</div>
-        <div id="overlay">
-            <h1>⚔️ BRAWL MINI</h1>
-            <p>📱 Джойстик + кнопка атаки<br>⌨️ WASD + пробел(рывок)<br>Укрытия защищают от врагов!</p>
-            <button class="bbtn" onclick="startGame()">ИГРАТЬ</button>
+        <button class="btn" id="startBtn">Начать приключение</button>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game" class="screen">
+        <div class="stats">
+            <div style="flex:1"><small>❤️ HP</small><div class="stat-bar"><div class="stat-fill hp-fill" id="hpFill" style="width:100%"></div></div></div>
+            <div style="flex:1"><small>💧 MP</small><div class="stat-bar"><div class="stat-fill mana-fill" id="manaFill" style="width:100%"></div></div></div>
+            <div style="flex:1"><small>⭐ XP</small><div class="stat-bar"><div class="stat-fill xp-fill" id="xpFill" style="width:0%"></div></div></div>
+        </div>
+        <div class="enemy-area">
+            <span class="enemy-sprite" id="enemySprite">👾</span>
+            <h3 id="enemyName">Слизень</h3>
+            <p id="enemyHP">❤️ 30/30</p>
+        </div>
+        <div class="actions" id="actions">
+            <button class="skill-btn" onclick="attack()"><span class="emoji">⚔️</span> Атака</button>
+            <button class="skill-btn" onclick="skill('fireball')"><span class="emoji">🔥</span> Огненный шар (5 MP)</button>
+            <button class="skill-btn" onclick="skill('heal')"><span class="emoji">💚</span> Исцеление (8 MP)</button>
+            <button class="skill-btn" onclick="skill('poison')"><span class="emoji">☠️</span> Яд (6 MP)</button>
+        </div>
+        <div class="log" id="log"></div>
+    </div>
+
+    <!-- Мастерская -->
+    <div id="workshop" class="screen">
+        <h2 style="margin-bottom:15px;">🔨 Мастерская</h2>
+        <div class="panel">
+            <div class="item"><span>⚔️ Улучшить оружие (+3 атаки)</span> <span class="gold-text">150 💰</span> <button onclick="upgrade('weapon')">Купить</button></div>
+            <div class="item"><span>🛡️ Улучшить броню (+5 HP)</span> <span class="gold-text">200 💰</span> <button onclick="upgrade('armor')">Купить</button></div>
+            <div class="item"><span>💍 Кольцо маны (+2 MP/сек)</span> <span class="gold-text">300 💰</span> <button onclick="upgrade('ring')">Купить</button></div>
+        </div>
+        <p style="margin-top:10px;">💰 Золото: <span id="goldDisplay">0</span></p>
+    </div>
+
+    <!-- Инвентарь -->
+    <div id="inventory" class="screen">
+        <h2>🎒 Инвентарь</h2>
+        <div class="panel" id="invList"></div>
+    </div>
+
+    <!-- События -->
+    <div id="events" class="screen">
+        <h2>🎲 События</h2>
+        <div class="panel" style="text-align:center;">
+            <p>🎰 Колесо удачи</p>
+            <button onclick="spinWheel()" class="btn" style="margin:10px 0;">Крутить (50 💰)</button>
+            <p id="wheelResult"></p>
+        </div>
+        <div class="panel" style="margin-top:15px;text-align:center;">
+            <p>📦 Сундук с сокровищами</p>
+            <button onclick="openChest()" class="btn" style="margin:10px 0;">Открыть (бесплатно раз в 5 мин)</button>
         </div>
     </div>
 
-    <script>
-        const tg=window.Telegram.WebApp;tg.expand();
-        const canvas=document.getElementById('game');
-        const ctx=canvas.getContext('2d');
-        const joystick=document.getElementById('joystick');
-        const knob=document.getElementById('joystick-knob');
-        const attackBtn=document.getElementById('attack-btn');
-        
-        let W,H;
-        function resize(){
-            let s=Math.min(window.innerWidth,window.innerHeight,500);
-            document.getElementById('container').style.width=s+'px';
-            document.getElementById('container').style.height=s+'px';
-            canvas.width=s;canvas.height=s;
-            W=s;H=s;
+    <!-- Боссы -->
+    <div id="bosses" class="screen">
+        <h2>🐉 Боссы</h2>
+        <div class="panel" id="bossList"></div>
+    </div>
+
+    <!-- Нижнее меню -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-screen="game" onclick="switchScreen('game')"><span class="nav-emoji">⚔️</span>Бой</div>
+        <div class="nav-item" data-screen="inventory" onclick="switchScreen('inventory')"><span class="nav-emoji">🎒</span>Вещи</div>
+        <div class="nav-item" data-screen="workshop" onclick="switchScreen('workshop')"><span class="nav-emoji">🔨</span>Мастер</div>
+        <div class="nav-item" data-screen="events" onclick="switchScreen('events')"><span class="nav-emoji">🎲</span>События</div>
+        <div class="nav-item" data-screen="bosses" onclick="switchScreen('bosses')"><span class="nav-emoji">🐉</span>Боссы</div>
+    </div>
+</div>
+
+<script>
+    // ---------- СОСТОЯНИЕ ИГРЫ ----------
+    const player = {
+        class: 'warrior',
+        level: 1,
+        xp: 0,
+        xpToNext: 50,
+        hp: 100,
+        maxHp: 100,
+        mana: 50,
+        maxMana: 50,
+        attack: 12,
+        defense: 5,
+        gold: 0,
+        critChance: 5,
+        inventory: [],
+        upgrades: { weapon: 0, armor: 0, ring: 0 },
+        manaRegen: 1,
+    };
+
+    let currentEnemy = null;
+    let bossEncounter = null;
+    let bossDefeated = [];
+    const enemies = [
+        { name: 'Слизень', emoji: '👾', hp: 25, attack: 8, xp: 20, gold: 10 },
+        { name: 'Гоблин', emoji: '👺', hp: 40, attack: 12, xp: 35, gold: 18 },
+        { name: 'Скелет', emoji: '💀', hp: 55, attack: 15, xp: 50, gold: 25 },
+        { name: 'Темный маг', emoji: '🧙‍♂️', hp: 45, attack: 20, xp: 60, gold: 30 },
+        { name: 'Огр', emoji: '👹', hp: 80, attack: 18, xp: 80, gold: 40 },
+    ];
+    const bosses = [
+        { name: 'Ледяной дракон', emoji: '🐉', hp: 200, attack: 25, xp: 150, gold: 100, levelReq: 5 },
+        { name: 'Король-лич', emoji: '👑💀', hp: 300, attack: 32, xp: 250, gold: 200, levelReq: 10 },
+        { name: 'Тёмный рыцарь', emoji: '⚫🛡️', hp: 400, attack: 40, xp: 400, gold: 350, levelReq: 15 },
+    ];
+
+    function updateUI() {
+        document.getElementById('hpFill').style.width = (player.hp / player.maxHp * 100) + '%';
+        document.getElementById('manaFill').style.width = (player.mana / player.maxMana * 100) + '%';
+        document.getElementById('xpFill').style.width = (player.xp / player.xpToNext * 100) + '%';
+        document.getElementById('goldDisplay').innerText = player.gold;
+        renderInventory();
+        renderBosses();
+    }
+
+    function addLog(msg) {
+        const log = document.getElementById('log');
+        log.innerHTML += msg + '<br>';
+        log.scrollTop = log.scrollHeight;
+    }
+
+    // ---------- КЛАССЫ И СТАРТ ----------
+    document.querySelectorAll('.class-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            player.class = card.dataset.class;
+            applyClassBonuses();
+        });
+    });
+
+    function applyClassBonuses() {
+        if (player.class === 'warrior') {
+            player.maxHp = 130; player.hp = 130; player.attack = 14; player.maxMana = 40; player.mana = 40;
+        } else if (player.class === 'mage') {
+            player.maxHp = 90; player.hp = 90; player.attack = 10; player.maxMana = 70; player.mana = 70;
+        } else if (player.class === 'archer') {
+            player.maxHp = 100; player.hp = 100; player.attack = 13; player.maxMana = 50; player.mana = 50; player.critChance = 20;
         }
-        resize();window.addEventListener('resize',resize);
+        updateUI();
+    }
 
-        let player,enemies=[],crystals=[],walls=[],particles=[],bullets=[];
-        let score=0,wave=1,gameRunning=false,gameOver=false;
-        let joyActive=false,joyX=0,joyY=0,joyBaseX=0,joyBaseY=0;
-        let attackPressed=false,attackCooldown=0;
-        let keys={w:false,a:false,s:false,d:false,space:false};
-        let dashCooldown=0,weaponLevel=1;
-        let joystickId=null,attackTouchId=null;
+    document.getElementById('startBtn').addEventListener('click', () => {
+        switchScreen('game');
+        spawnEnemy();
+    });
 
-        function buildWalls(){
-            walls=[];
-            [[W*.25,H*.2,W*.06,H*.12],[W*.55,H*.18,W*.1,H*.06],[W*.35,H*.45,W*.05,H*.12],
-             [W*.7,H*.4,W*.08,H*.08],[W*.15,H*.6,W*.12,H*.05],[W*.5,H*.65,W*.07,H*.1],
-             [W*.8,H*.7,W*.08,H*.08],[W*.25,H*.8,W*.1,H*.06]].forEach(p=>walls.push({x:p[0],y:p[1],w:p[2],h:p[3]}));
-        }
+    // ---------- ЭКРАНЫ ----------
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-screen="${screenId}"]`).classList.add('active');
+        if (screenId === 'bosses') renderBosses();
+        if (screenId === 'inventory') renderInventory();
+        if (screenId === 'workshop') document.getElementById('goldDisplay').innerText = player.gold;
+    }
 
-        function collideWall(x,y,r){
-            for(let w of walls){
-                let cx=Math.max(w.x,Math.min(x,w.x+w.w));
-                let cy=Math.max(w.y,Math.min(y,w.y+w.h));
-                if(Math.hypot(x-cx,y-cy)<r)return true;
+    // ---------- ВРАГИ И БОЙ ----------
+    function spawnEnemy() {
+        if (bossEncounter) return;
+        const template = enemies[Math.floor(Math.random() * enemies.length)];
+        currentEnemy = { ...template, hp: template.hp };
+        document.getElementById('enemySprite').innerText = template.emoji;
+        document.getElementById('enemyName').innerText = template.name;
+        document.getElementById('enemyHP').innerText = `❤️ ${currentEnemy.hp}/${template.hp}`;
+    }
+
+    function attack() {
+        if (!currentEnemy && !bossEncounter) return spawnEnemy();
+        const target = bossEncounter || currentEnemy;
+        let damage = player.attack + player.upgrades.weapon * 3;
+        if (Math.random() * 100 < player.critChance) { damage *= 2; addLog('💥 Критический удар!'); }
+        target.hp -= damage;
+        addLog(`Вы нанесли ${damage} урона.`);
+        if (target.hp <= 0) {
+            addLog(`✅ ${target.name} повержен!`);
+            player.xp += target.xp;
+            player.gold += target.gold;
+            checkLevelUp();
+            if (bossEncounter) {
+                bossDefeated.push(bossEncounter.name);
+                bossEncounter = null;
             }
-            return false;
+            currentEnemy = null;
+            spawnEnemy();
+        } else {
+            enemyTurn(target);
         }
+        updateUI();
+        if (target) document.getElementById('enemyHP').innerText = `❤️ ${target.hp}/${target.name === currentEnemy?.name ? enemies.find(e=>e.name===target.name)?.hp : bosses.find(b=>b.name===target.name)?.hp}`;
+    }
 
-        function pushOut(x,y,r){
-            for(let w of walls){
-                let cx=Math.max(w.x,Math.min(x,w.x+w.w));
-                let cy=Math.max(w.y,Math.min(y,w.y+w.h));
-                let dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy);
-                if(d<r&&d>0){x=cx+dx/d*r;y=cy+dy/d*r;}
+    function skill(type) {
+        if (bossEncounter && bossEncounter.hp <= 0) return;
+        const target = bossEncounter || currentEnemy;
+        if (!target) return;
+        if (type === 'fireball' && player.mana >= 5) {
+            player.mana -= 5;
+            let dmg = 18 + player.upgrades.weapon * 2;
+            target.hp -= dmg;
+            addLog(`🔥 Огненный шар нанёс ${dmg} урона.`);
+        } else if (type === 'heal' && player.mana >= 8) {
+            player.mana -= 8;
+            player.hp = Math.min(player.maxHp, player.hp + 20);
+            addLog(`💚 Исцеление +20 HP.`);
+        } else if (type === 'poison' && player.mana >= 6) {
+            player.mana -= 6;
+            target.hp -= 10;
+            addLog(`☠️ Яд нанёс 10 урона и будет действовать 2 хода.`);
+        } else {
+            addLog('Недостаточно маны!');
+            return;
+        }
+        if (target.hp <= 0) {
+            addLog(`✅ ${target.name} уничтожен!`);
+            player.xp += target.xp;
+            player.gold += target.gold;
+            checkLevelUp();
+            if (bossEncounter) {
+                bossDefeated.push(bossEncounter.name);
+                bossEncounter = null;
             }
-            return{x,y};
+            currentEnemy = null;
+            spawnEnemy();
+        } else {
+            enemyTurn(target);
         }
+        updateUI();
+        if (target) document.getElementById('enemyHP').innerText = `❤️ ${target.hp}/${target.name === currentEnemy?.name ? enemies.find(e=>e.name===target.name)?.hp : bosses.find(b=>b.name===target.name)?.hp}`;
+    }
 
-        function spawnEnemy(){
-            let side=Math.floor(Math.random()*4);
-            let ex,ey,m=W*.08;
-            if(side===0){ex=Math.random()*W;ey=-m}else if(side===1){ex=W+m;ey=Math.random()*H}
-            else if(side===2){ex=Math.random()*W;ey=H+m}else{ex=-m;ey=Math.random()*H}
-            let hp=10+wave*5,speed=W/500+wave*.015;
-            enemies.push({x:ex,y:ey,r:W/30,hp,maxHp:hp,speed,damage:6+wave*3,attackCd:0,color:'#e53935'});
+    function enemyTurn(enemy) {
+        let damage = enemy.attack - player.defense - player.upgrades.armor * 2;
+        if (damage < 2) damage = 2;
+        player.hp -= damage;
+        addLog(`${enemy.name} атакует на ${damage} урона.`);
+        if (player.hp <= 0) {
+            addLog('💀 Вы погибли... Возрождение через 3 сек.');
+            player.hp = player.maxHp;
+            player.mana = player.maxMana;
+            currentEnemy = null;
+            bossEncounter = null;
+            spawnEnemy();
         }
+        player.mana = Math.min(player.maxMana, player.mana + player.manaRegen + player.upgrades.ring);
+        updateUI();
+    }
 
-        function spawnCrystal(){
-            for(let i=0;i<30;i++){
-                let cx=W*.05+Math.random()*W*.9,cy=H*.05+Math.random()*H*.9;
-                if(!collideWall(cx,cy,W/40)&&!walls.some(w=>cx>w.x&&cx<w.x+w.w&&cy>w.y&&cy<w.y+w.h)){
-                    crystals.push({x:cx,y:cy,r:W/55,value:8+wave*3});break;
-                }
+    function checkLevelUp() {
+        while (player.xp >= player.xpToNext) {
+            player.xp -= player.xpToNext;
+            player.level++;
+            player.xpToNext = Math.floor(player.xpToNext * 1.5);
+            player.maxHp += 8;
+            player.hp = player.maxHp;
+            player.maxMana += 4;
+            player.mana = player.maxMana;
+            player.attack += 2;
+            addLog(`🎉 Уровень повышен! Теперь уровень ${player.level}.`);
+            if (player.level % 5 === 0 && !bossEncounter) {
+                addLog('🐉 Появился босс!');
+                spawnBoss();
             }
         }
+        updateUI();
+    }
 
-        function startWave(){
-            enemies=[];crystals=[];
-            for(let i=0;i<3+wave;i++)spawnEnemy();
-            for(let i=0;i<5;i++)spawnCrystal();
-            wave++;document.getElementById('wave').textContent=wave;
-        }
+    function spawnBoss() {
+        const available = bosses.filter(b => b.levelReq <= player.level && !bossDefeated.includes(b.name));
+        if (available.length === 0) return;
+        const boss = available[Math.floor(Math.random() * available.length)];
+        bossEncounter = { ...boss, hp: boss.hp };
+        currentEnemy = null;
+        document.getElementById('enemySprite').innerText = boss.emoji;
+        document.getElementById('enemyName').innerText = boss.name + ' (БОСС)';
+        document.getElementById('enemyHP').innerText = `❤️ ${bossEncounter.hp}/${boss.hp}`;
+    }
 
-        function startGame(){
-            player={x:W/2,y:H/2,r:W/22,speed:W/160,hp:100,maxHp:100,inv:0};
-            score=0;wave=0;enemies=[];crystals=[];particles=[];bullets=[];gameOver=false;gameRunning=true;
-            weaponLevel=1;attackCooldown=0;dashCooldown=0;
-            buildWalls();startWave();
-            document.getElementById('overlay').style.display='none';
+    // ---------- МАСТЕРСКАЯ ----------
+    function upgrade(type) {
+        const costs = { weapon: 150, armor: 200, ring: 300 };
+        if (player.gold >= costs[type]) {
+            player.gold -= costs[type];
+            player.upgrades[type]++;
+            addLog(`🔨 Улучшение ${type} куплено!`);
             updateUI();
+        } else {
+            addLog('Недостаточно золота!');
         }
+    }
 
-        function endGame(){
-            gameRunning=false;gameOver=true;
-            document.getElementById('overlay').innerHTML=`<h1>💀</h1><p>Волна ${wave-1}<br>🪙 ${score}</p><button class="bbtn" onclick="startGame()">ЗАНОВО</button>`;
-            document.getElementById('overlay').style.display='flex';
-        }
-
-        function updateUI(){
-            document.getElementById('hp').textContent=Math.max(0,player.hp);
-            document.getElementById('score').textContent=score;
-        }
-
-        function shoot(){
-            if(!gameRunning||attackCooldown>0)return;
-            attackCooldown=25;
-            let nearest=null,minD=W*.3;
-            enemies.forEach(e=>{let d=Math.hypot(player.x-e.x,player.y-e.y);if(d<minD){minD=d;nearest=e}});
-            if(nearest){
-                let dx=nearest.x-player.x,dy=nearest.y-player.y,d=Math.hypot(dx,dy);
-                bullets.push({x:player.x,y:player.y,vx:dx/d*W/80,vy:dy/d*W/80,damage:12*weaponLevel});
-                for(let i=0;i<2;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:10,color:'#ffcc00'});
-            }
-        }
-
-        function dash(){
-            if(!gameRunning||dashCooldown>0)return;
-            dashCooldown=45;
-            let dx=0,dy=0;
-            if(joyActive){dx=joyX;dy=joyY}
-            else{if(keys.w||keys.ArrowUp)dy=-1;if(keys.s||keys.ArrowDown)dy=1;if(keys.a||keys.ArrowLeft)dx=-1;if(keys.d||keys.ArrowRight)dx=1}
-            if(dx===0&&dy===0)dx=1;
-            let d=Math.hypot(dx,dy);
-            player.x+=dx/d*W*.08;player.y+=dy/d*W*.08;
-            let p=pushOut(player.x,player.y,player.r);player.x=p.x;player.y=p.y;
-            player.inv=8;
-            for(let i=0;i<6;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:12,color:'#fff'});
-        }
-
-        // Джойстик
-        joystick.addEventListener('touchstart',e=>{e.preventDefault();
-            let t=e.changedTouches[0];joyBaseX=t.clientX;joyBaseY=t.clientY;
-            joyActive=true;joystickId=t.identifier;
+    // ---------- ИНВЕНТАРЬ ----------
+    function renderInventory() {
+        const list = document.getElementById('invList');
+        list.innerHTML = '';
+        if (player.inventory.length === 0) list.innerHTML = '<p>Пусто</p>';
+        player.inventory.forEach(item => {
+            list.innerHTML += `<div class="item"><span>${item}</span></div>`;
         });
-        joystick.addEventListener('touchmove',e=>{e.preventDefault();
-            for(let t of e.changedTouches){if(t.identifier===joystickId){
-                let dx=t.clientX-joyBaseX,dy=t.clientY-joyBaseY,d=Math.hypot(dx,dy);
-                let maxR=35;if(d>maxR){dx=dx/d*maxR;dy=dy/d*maxR}
-                knob.style.transform=`translate(${dx}px,${dy}px)`;
-                joyX=dx/maxR;joyY=dy/maxR;
-            }}
-        });
-        joystick.addEventListener('touchend',e=>{e.preventDefault();
-            for(let t of e.changedTouches){if(t.identifier===joystickId){
-                joyActive=false;joyX=0;joyY=0;knob.style.transform='translate(0,0)';
-            }}
-        });
+    }
 
-        // Кнопка атаки
-        attackBtn.addEventListener('touchstart',e=>{e.preventDefault();attackPressed=true;attackTouchId=e.changedTouches[0].identifier;shoot();});
-        attackBtn.addEventListener('touchend',e=>{e.preventDefault();attackPressed=false;});
+    // ---------- БОССЫ ----------
+    function renderBosses() {
+        const list = document.getElementById('bossList');
+        list.innerHTML = bosses.map(b => `
+            <div class="item">
+                <span>${b.emoji} ${b.name} (Ур.${b.levelReq})</span>
+                <span>${bossDefeated.includes(b.name) ? '✅' : '❌'}</span>
+            </div>
+        `).join('');
+    }
 
-        // Клавиатура
-        document.addEventListener('keydown',e=>{
-            if(e.key==='w'||e.key==='ArrowUp')keys.w=true;
-            if(e.key==='s'||e.key==='ArrowDown')keys.s=true;
-            if(e.key==='a'||e.key==='ArrowLeft')keys.a=true;
-            if(e.key==='d'||e.key==='ArrowRight')keys.d=true;
-            if(e.key===' ')dash();
-        });
-        document.addEventListener('keyup',e=>{
-            if(e.key==='w'||e.key==='ArrowUp')keys.w=false;
-            if(e.key==='s'||e.key==='ArrowDown')keys.s=false;
-            if(e.key==='a'||e.key==='ArrowLeft')keys.a=false;
-            if(e.key==='d'||e.key==='ArrowRight')keys.d=false;
-        });
+    // ---------- СОБЫТИЯ ----------
+    function spinWheel() {
+        if (player.gold < 50) return alert('Недостаточно золота!');
+        player.gold -= 50;
+        const rewards = ['10 золота', '20 XP', 'Зелье здоровья', '50 золота', 'Кинжал', 'Ничего'];
+        const result = rewards[Math.floor(Math.random() * rewards.length)];
+        document.getElementById('wheelResult').innerText = '🎁 ' + result;
+        if (result.includes('золота')) player.gold += parseInt(result);
+        else if (result.includes('XP')) player.xp += 20;
+        else if (result === 'Зелье здоровья') player.hp = player.maxHp;
+        else if (result === 'Кинжал') player.inventory.push('Кинжал (+2 атаки)');
+        updateUI();
+    }
 
-        function update(){
-            if(!gameRunning)return;
-            // Движение
-            let dx=0,dy=0;
-            if(joyActive){dx=joyX;dy=joyY}
-            else{
-                if(keys.w||keys.ArrowUp)dy=-1;if(keys.s||keys.ArrowDown)dy=1;
-                if(keys.a||keys.ArrowLeft)dx=-1;if(keys.d||keys.ArrowRight)dx=1;
-            }
-            if(dx!==0||dy!==0){
-                let d=Math.hypot(dx,dy);
-                player.x+=dx/d*player.speed;player.y+=dy/d*player.speed;
-                let p=pushOut(player.x,player.y,player.r);player.x=p.x;player.y=p.y;
-            }
-            player.x=Math.max(player.r,Math.min(W-player.r,player.x));
-            player.y=Math.max(player.r,Math.min(H-player.r,player.y));
+    function openChest() {
+        const rewards = ['100 золота', 'Эликсир маны', 'Амулет крита', '30 XP'];
+        const result = rewards[Math.floor(Math.random() * rewards.length)];
+        document.getElementById('wheelResult').innerText = '📦 ' + result;
+        if (result.includes('золота')) player.gold += 100;
+        else if (result === 'Эликсир маны') player.mana = player.maxMana;
+        else if (result === 'Амулет крита') { player.critChance += 5; addLog('🎯 Шанс крита +5%'); }
+        else if (result.includes('XP')) player.xp += 30;
+        updateUI();
+    }
 
-            // Атака
-            if(attackPressed)shoot();
-            if(attackCooldown>0)attackCooldown--;
-            if(dashCooldown>0)dashCooldown--;
-            if(player.inv>0)player.inv--;
-
-            // Враги
-            enemies.forEach(e=>{
-                // Ищем путь вокруг стен
-                let dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy);
-                if(d>0){
-                    let nx=dx/d,ny=dy/d;
-                    // Проверяем прямую видимость
-                    let blocked=false;
-                    for(let w of walls){
-                        // Луч пересекает стену?
-                        let tMin=0,tMax=1;
-                        if(Math.abs(dx)>0.001){
-                            let t1=(w.x-e.x)/dx,t2=(w.x+w.w-e.x)/dx;
-                            let tMinX=Math.min(t1,t2),tMaxX=Math.max(t1,t2);
-                            tMin=Math.max(tMin,tMinX);tMax=Math.min(tMax,tMaxX);
-                        }
-                        if(Math.abs(dy)>0.001){
-                            let t1=(w.y-e.y)/dy,t2=(w.y+w.h-e.y)/dy;
-                            let tMinY=Math.min(t1,t2),tMaxY=Math.max(t1,t2);
-                            tMin=Math.max(tMin,tMinY);tMax=Math.min(tMax,tMaxY);
-                        }
-                        if(tMin<tMax&&tMin<1&&tMax>0){blocked=true;break}
-                    }
-                    if(!blocked&&d<W*.35){e.x+=nx*e.speed;e.y+=ny*e.speed}
-                }
-                // Атака
-                if(Math.hypot(player.x-e.x,player.y-e.y)<e.r+player.r&&e.attackCd<=0&&player.inv<=0){
-                    player.hp-=e.damage;player.inv=12;e.attackCd=35;
-                    for(let i=0;i<3;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:8,color:'#ff4444'});
-                }
-                if(e.attackCd>0)e.attackCd--;
-            });
-
-            // Пули
-            bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy});
-            bullets=bullets.filter(b=>b.x>0&&b.x<W&&b.y>0&&b.y<H);
-            enemies.forEach(e=>{
-                bullets=bullets.filter(b=>{
-                    if(Math.hypot(b.x-e.x,b.y-e.y)<e.r+W/60){
-                        e.hp-=b.damage;
-                        for(let i=0;i<2;i++)particles.push({x:b.x,y:b.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,life:6,color:'#ff0'});
-                        return false;
-                    }
-                    return true;
-                });
-            });
-
-            // Кристаллы
-            crystals=crystals.filter(c=>{
-                if(Math.hypot(player.x-c.x,player.y-c.y)<player.r+c.r){score+=c.value;return false}
-                return true;
-            });
-
-            // Частицы
-            particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life--});
-            particles=particles.filter(p=>p.life>0);
-
-            // Удаление врагов
-            enemies=enemies.filter(e=>{
-                if(e.hp<=0){score+=5+wave;spawnCrystal();for(let i=0;i<5;i++)particles.push({x:e.x,y:e.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:10,color:'#ffd700'});return false}
-                return true;
-            });
-
-            if(enemies.length===0)startWave();
-            if(player.hp<=0)endGame();
-            updateUI();
-        }
-
-        function draw(){
-            ctx.clearRect(0,0,W,H);
-            ctx.fillStyle='#388E3C';ctx.fillRect(0,0,W,H);
-            // Сетка
-            ctx.fillStyle='#2E7D32';
-            for(let x=0;x<W;x+=W/10)for(let y=0;y<H;y+=H/10)if((x+y)%(W/5)<2)ctx.fillRect(x,y,3,3);
-            // Стены
-            walls.forEach(w=>{
-                ctx.fillStyle='#5D4037';ctx.fillRect(w.x,w.y,w.w,w.h);
-                ctx.fillStyle='#4E342E';ctx.fillRect(w.x+2,w.y+2,w.w-4,w.h-4);
-            });
-            // Кристаллы
-            crystals.forEach(c=>{
-                ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#FFF8E1';ctx.beginPath();ctx.arc(c.x-c.r*.2,c.y-c.r*.3,c.r*.35,0,Math.PI*2);ctx.fill();
-            });
-            // Пули
-            bullets.forEach(b=>{ctx.fillStyle='#FFEB3B';ctx.beginPath();ctx.arc(b.x,b.y,W/120,0,Math.PI*2);ctx.fill()});
-            // Враги
-            enemies.forEach(e=>{
-                ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#b71c1c';ctx.beginPath();ctx.arc(e.x,e.y,e.r*.7,0,Math.PI*2);ctx.fill();
-                // HP
-                let bw=e.r*1.3;ctx.fillStyle='#333';ctx.fillRect(e.x-bw/2,e.y-e.r-7,bw,5);
-                ctx.fillStyle='#f44336';ctx.fillRect(e.x-bw/2,e.y-e.r-7,bw*(e.hp/e.maxHp),5);
-            });
-            // Игрок
-            if(player.inv%6<3){
-                ctx.fillStyle='#1976D2';ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#0D47A1';ctx.beginPath();ctx.arc(player.x,player.y,player.r*.65,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(player.x,player.y-player.r*.2,player.r*.45,Math.PI,0);ctx.fill();
-                ctx.fillStyle='#000';ctx.beginPath();ctx.arc(player.x-player.r*.25,player.y-player.r*.2,player.r*.08,0,Math.PI*2);ctx.fill();
-                ctx.beginPath();ctx.arc(player.x+player.r*.25,player.y-player.r*.2,player.r*.08,0,Math.PI*2);ctx.fill();
-            }
-            // Частицы
-            particles.forEach(p=>{ctx.globalAlpha=p.life/12;ctx.fillStyle=p.color;ctx.fillRect(p.x-2,p.y-2,4,4)});
-            ctx.globalAlpha=1;
-        }
-
-        function loop(){update();draw();requestAnimationFrame(loop)}
-        loop();
-    </script>
+    // Инициализация
+    applyClassBonuses();
+    document.querySelector('.class-card[data-class="warrior"]').classList.add('selected');
+    updateUI();
+</script>
 </body>
 </html>
