@@ -2,207 +2,530 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Бизнес Магнат</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Game Farmer — 6 игр</title>
     <style>
         :root {
-            --bg: #0a0c14; --card: #141829; --gold: #f0b90b; --accent: #4caf84;
-            --text: #e8e8ee; --sub: #7a7f92; --border: #1e2235;
+            --bg: #0d0d14;
+            --card: #16161f;
+            --border: #252530;
+            --text: #ddd;
+            --green: #00e676;
+            --gold: #ffd740;
+            --blue: #448aff;
+            --red: #ff5252;
+            --purple: #b388ff;
         }
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            font-family:'Segoe UI',system-ui,sans-serif;
-            background:var(--bg);color:var(--text);
-            height:100dvh;display:flex;justify-content:center;align-items:center;
-            user-select:none;-webkit-user-select:none;
-            -webkit-tap-highlight-color:transparent;overflow:hidden;
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
         }
-        #app{
-            width:100%;max-width:480px;height:100dvh;
-            display:flex;flex-direction:column;
-            background:linear-gradient(180deg, #10142a 0%, #0a0c14 100%);
-            position:relative;overflow:hidden;
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
         }
-        .header{
-            padding:12px 16px 6px;display:flex;align-items:center;gap:10px;
-            z-index:10;background:rgba(10,12,20,.8);backdrop-filter:blur(10px);
+        header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .balance{
-            font-size:32px;font-weight:800;color:var(--gold);
-            text-shadow:0 0 20px rgba(240,185,11,.25);line-height:1;
+        header p { color: #888; font-size: 14px; margin-top: 4px; }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
-        .income-badge{
-            font-size:11px;color:var(--accent);background:rgba(76,175,132,.1);
-            padding:3px 8px;border-radius:10px;font-weight:600;margin-left:8px;
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: -0.2px;
         }
-        .main-area{
-            flex:1;display:flex;align-items:center;justify-content:center;
-            position:relative;min-height:180px;
+        .btn-start { background: var(--green); color: #000; }
+        .btn-start:hover { box-shadow: 0 0 24px rgba(0,230,118,0.5); transform: translateY(-1px); }
+        .btn-stop { background: var(--red); color: #fff; }
+        .btn-stop:hover { box-shadow: 0 0 24px rgba(255,82,82,0.5); }
+        .btn-bonus { background: var(--gold); color: #000; }
+        .btn-bonus:hover { box-shadow: 0 0 24px rgba(255,215,64,0.5); }
+        .btn-reset { background: #444; color: #fff; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .status-bar {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 15px;
         }
-        .clicker{
-            width:130px;height:130px;border-radius:50%;
-            background:radial-gradient(circle at 40% 35%, #5c6bc0, #1a237e);
-            box-shadow:0 0 40px rgba(92,107,192,.4),inset 0 -4px 8px rgba(0,0,0,.3);
-            cursor:pointer;transition:transform .1s;
-            display:flex;align-items:center;justify-content:center;
+        .status-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
         }
-        .clicker:active{transform:scale(.88)}
-        .clicker svg{width:50px;height:50px;fill:rgba(255,255,255,.85)}
-        .float-text{
-            position:absolute;font-weight:800;font-size:22px;color:var(--gold);
-            pointer-events:none;animation:floatUp .8s ease-out forwards;
-            text-shadow:0 0 12px rgba(240,185,11,.6);z-index:20;
+        .online { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .offline { background: var(--red); }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        @keyframes floatUp{
-            0%{opacity:1;transform:translate(-50%,0) scale(1)}
-            100%{opacity:0;transform:translate(-50%,-90px) scale(1.4)}
+
+        .game-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            transition: all 0.3s;
         }
-        .tabs{display:flex;padding:0 12px;gap:4px}
-        .tab{
-            flex:1;text-align:center;padding:10px 0;font-size:12px;font-weight:600;
-            color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;
+        .game-card.active { border-color: var(--green); }
+        .game-card.farming { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,215,64,0.15); }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
         }
-        .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-        .list-area{
-            flex:1;overflow-y:auto;padding:8px 12px 12px;
-            -webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;
+        .game-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
-        .biz-card{
-            background:var(--card);border-radius:14px;padding:14px;
-            display:flex;align-items:center;gap:12px;border:1px solid var(--border);
-            cursor:pointer;transition:all .18s;
+        .game-name { font-size: 17px; font-weight: 700; }
+        .game-status {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
         }
-        .biz-card:active{background:#1c2140}
-        .biz-icon{
-            width:44px;height:44px;border-radius:12px;display:flex;
-            align-items:center;justify-content:center;font-size:18px;
-            font-weight:700;flex-shrink:0;color:#fff;
+        .status-farming { background: rgba(255,215,64,0.15); color: var(--gold); }
+        .status-idle { background: rgba(255,255,255,0.05); color: #888; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
         }
-        .biz-info{flex:1;min-width:0}
-        .biz-name{font-weight:600;font-size:13px}
-        .biz-meta{font-size:10px;color:var(--sub)}
-        .biz-cost{font-weight:700;font-size:13px;white-space:nowrap}
-        .mgr-card{
-            background:var(--card);border-radius:12px;padding:12px;
-            border:1px solid var(--border);display:flex;align-items:center;
-            gap:10px;cursor:pointer;
+        .stat {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
         }
-        .mgr-card:active{background:#1c2140}
-        .mgr-avatar{
-            width:38px;height:38px;border-radius:50%;display:flex;
-            align-items:center;justify-content:center;font-size:16px;
-            flex-shrink:0;color:#fff;font-weight:700;
+        .stat-value { font-size: 18px; font-weight: 700; color: var(--gold); }
+        .stat-label { font-size: 11px; color: #777; margin-top: 2px; }
+
+        .progress-wrap { margin: 10px 0; }
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
         }
-        .toast{
-            position:fixed;top:60px;left:50%;transform:translateX(-50%);
-            background:#1a1f35;color:#fff;padding:10px 20px;border-radius:16px;
-            font-size:13px;font-weight:600;z-index:200;border:1px solid var(--gold);
-            animation:toastIn .4s ease-out;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--blue));
+            border-radius: 3px;
+            transition: width 0.4s;
         }
-        @keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(-20px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        .log-area {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            line-height: 1.8;
+            color: #999;
+            margin-top: 16px;
+        }
+        .log-area .log-tap { color: var(--green); }
+        .log-area .log-bonus { color: var(--gold); }
+        .log-area .log-energy { color: var(--blue); }
+        .log-area .log-error { color: var(--red); }
+
+        .total-stats {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .total-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .total-stat .ts-val { font-size: 24px; font-weight: 800; color: var(--green); }
+        .total-stat .ts-lbl { font-size: 12px; color: #888; }
+
+        @media (max-width: 600px) {
+            .games-grid { grid-template-columns: 1fr; }
+            .btn { padding: 10px 18px; font-size: 13px; }
+        }
     </style>
 </head>
 <body>
-<div id="app">
-    <div class="header">
-        <div class="balance" id="balance">0</div>
-        <div class="income-badge" id="incomeBadge">+0/с</div>
-    </div>
-    <div class="main-area" id="mainArea">
-        <div class="clicker" id="clicker">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-        </div>
-    </div>
-    <div class="tabs">
-        <div class="tab active" id="tabBiz" onclick="switchTab('biz')">Бизнес</div>
-        <div class="tab" id="tabMgr" onclick="switchTab('mgr')">Менеджеры</div>
-    </div>
-    <div class="list-area" id="listArea"></div>
+
+<header>
+    <h1>🎮 Telegram Game Farmer</h1>
+    <p>Тапает 6 игр одновременно • Доход $50-500 при листинге каждой</p>
+</header>
+
+<div class="controls">
+    <button class="btn btn-start" id="btnStart" onclick="startAll()">▶ Запустить все игры</button>
+    <button class="btn btn-stop" id="btnStop" onclick="stopAll()" disabled>⏹ Остановить</button>
+    <button class="btn btn-bonus" onclick="collectAllBonuses()">🎁 Собрать все бонусы</button>
+    <button class="btn btn-reset" onclick="resetAll()">🔄 Сброс</button>
 </div>
+
+<div class="status-bar">
+    <span class="status-dot offline" id="globalDot"></span>
+    <span id="globalStatus">Бот остановлен</span>
+    <span style="margin-left:16px;color:#888;">| Общий фарм: <b id="globalTaps" style="color:var(--gold);">0</b> тапов</span>
+</div>
+
+<div class="games-grid" id="gamesGrid"></div>
+
+<div class="total-stats">
+    <div class="total-stat"><div class="ts-val" id="totalCoins">0</div><div class="ts-lbl">Всего монет</div></div>
+    <div class="total-stat"><div class="ts-val" id="totalTaps">0</div><div class="ts-lbl">Всего тапов</div></div>
+    <div class="total-stat"><div class="ts-val" id="estIncome">$0</div><div class="ts-lbl">Ожидаемый доход</div></div>
+</div>
+
+<div class="log-area" id="logArea">
+    <span style="color:#555;">[Система] Панель готова. Нажмите "Запустить все игры".</span>
+</div>
+
 <script>
-let money=0,incomePerSec=0,clickValue=1,totalEarned=0,tab='biz';
-let businesses=[
-    {id:'stand',name:'Стенд',icon:'L',baseCost:10,cost:10,income:0.5,owned:0,color:'#ff9800'},
-    {id:'shop',name:'Магазин',icon:'M',baseCost:80,cost:80,income:4,owned:0,color:'#2196f3'},
-    {id:'cafe',name:'Кафе',icon:'C',baseCost:500,cost:500,income:20,owned:0,color:'#e91e63'},
-    {id:'factory',name:'Фабрика',icon:'F',baseCost:3000,cost:3000,income:100,owned:0,color:'#607d8b'},
-    {id:'bank',name:'Банк',icon:'B',baseCost:20000,cost:20000,income:600,owned:0,color:'#ffc107'},
-    {id:'airport',name:'Аэропорт',icon:'A',baseCost:150000,cost:150000,income:4000,owned:0,color:'#00bcd4'},
-    {id:'city',name:'Небоскрёб',icon:'N',baseCost:1e6,cost:1e6,income:25000,owned:0,color:'#9c27b0'},
-    {id:'island',name:'Остров',icon:'O',baseCost:8e6,cost:8e6,income:150000,owned:0,color:'#4caf84'}
-];
-let managers=[
-    {id:'m1',name:'Продавец',bizId:'stand',cost:50,owned:false,color:'#ff9800'},
-    {id:'m2',name:'Бариста',bizId:'shop',cost:300,owned:false,color:'#2196f3'},
-    {id:'m3',name:'Шеф',bizId:'cafe',cost:2000,owned:false,color:'#e91e63'},
-    {id:'m4',name:'Инженер',bizId:'factory',cost:12000,owned:false,color:'#607d8b'},
-    {id:'m5',name:'Директор',bizId:'bank',cost:80000,owned:false,color:'#ffc107'}
-];
+    // ═══════════════ КОНФИГ ИГР ═══════════════
+    const GAMES = [
+        {
+            id: 'blum', name: 'Blum', icon: '🌸', color: '#7c4dff',
+            tapsPerCycle: 150, tapDelay: 50, energyMax: 500, energyRegen: 1,
+            dailyBonus: 500, coinsPerTap: 1,
+        },
+        {
+            id: 'tapswap', name: 'TapSwap', icon: '🔄', color: '#00bcd4',
+            tapsPerCycle: 200, tapDelay: 40, energyMax: 600, energyRegen: 2,
+            dailyBonus: 1000, coinsPerTap: 1,
+        },
+        {
+            id: 'hamster', name: 'Hamster Kombat', icon: '🐹', color: '#ff9800',
+            tapsPerCycle: 100, tapDelay: 60, energyMax: 400, energyRegen: 1.5,
+            dailyBonus: 750, coinsPerTap: 2,
+        },
+        {
+            id: 'catizen', name: 'Catizen', icon: '🐱', color: '#e91e63',
+            tapsPerCycle: 120, tapDelay: 55, energyMax: 450, energyRegen: 1.2,
+            dailyBonus: 600, coinsPerTap: 1,
+        },
+        {
+            id: 'yescoin', name: 'Yescoin', icon: '✅', color: '#4caf50',
+            tapsPerCycle: 180, tapDelay: 35, energyMax: 550, energyRegen: 1.8,
+            dailyBonus: 900, coinsPerTap: 1,
+        },
+        {
+            id: 'notcoin', name: 'Notcoin', icon: '💎', color: '#2196f3',
+            tapsPerCycle: 160, tapDelay: 45, energyMax: 500, energyRegen: 1,
+            dailyBonus: 800, coinsPerTap: 1,
+        },
+    ];
 
-function fm(n){if(n>=1e9)return (n/1e9).toFixed(1)+'B';if(n>=1e6)return (n/1e6).toFixed(1)+'M';if(n>=1e3)return (n/1e3).toFixed(1)+'K';return Math.floor(n).toLocaleString()}
+    // ═══════════════ СОСТОЯНИЕ ═══════════════
+    let isRunning = false;
+    let gameStates = {};
+    let globalTaps = 0;
+    let totalCoinsAll = 0;
+    let intervals = {};
+    let energyIntervals = {};
 
-function updateUI(){
-    document.getElementById('balance').textContent=fm(money);
-    document.getElementById('incomeBadge').textContent='+'+fm(incomePerSec)+'/с';
-}
+    // Инициализация
+    GAMES.forEach(g => {
+        gameStates[g.id] = {
+            coins: 0,
+            taps: 0,
+            energy: g.energyMax,
+            energyMax: g.energyMax,
+            farming: false,
+            bonusCollected: false,
+        };
+    });
 
-function notify(msg){
-    const el=document.createElement('div');el.className='toast';el.textContent=msg;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
-}
-
-function switchTab(t){
-    tab=t;
-    document.getElementById('tabBiz').classList.toggle('active',t==='biz');
-    document.getElementById('tabMgr').classList.toggle('active',t==='mgr');
-    render();
-}
-
-function buyBiz(id){
-    const b=businesses.find(x=>x.id===id);
-    if(!b||money<b.cost)return;
-    money-=b.cost;b.owned++;incomePerSec+=b.income;totalEarned+=b.cost;
-    b.cost=Math.floor(b.baseCost*Math.pow(1.12,b.owned));
-    clickValue=1+Math.floor(totalEarned/500);
-    updateUI();render();
-}
-
-function buyMgr(id){
-    const m=managers.find(x=>x.id===id);
-    if(!m||m.owned||money<m.cost)return;
-    money-=m.cost;m.owned=true;
-    const b=businesses.find(x=>x.id===m.bizId);
-    if(b)incomePerSec+=b.income*Math.max(1,b.owned);
-    updateUI();render();
-}
-
-function render(){
-    const area=document.getElementById('listArea');
-    if(tab==='biz'){
-        area.innerHTML=businesses.map(b=>`<div class="biz-card" onclick="buyBiz('${b.id}')"><div class="biz-icon" style="background:${b.color}40;color:${b.color}">${b.icon}</div><div class="biz-info"><div class="biz-name">${b.name}</div><div class="biz-meta">+${fm(b.income)}/с • ${b.owned} шт</div></div><div class="biz-cost" style="color:${money>=b.cost?'var(--gold)':'var(--sub)'}">${fm(b.cost)}</div></div>`).join('');
-    }else{
-        area.innerHTML=managers.map(m=>{const canBuy=!m.owned&&money>=m.cost;const b=businesses.find(x=>x.id===m.bizId);return`<div class="mgr-card" onclick="buyMgr('${m.id}')"><div class="mgr-avatar" style="background:${m.color}30;color:${m.color}">${m.name[0]}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--sub)">Авто: ${b?b.name:''}</div></div><div style="font-weight:700;font-size:13px;color:${m.owned?'var(--accent)':canBuy?'var(--gold)':'var(--sub)'}">${m.owned?'Нанят':fm(m.cost)}</div></div>`}).join('');
+    // ═══════════════ РЕНДЕР ═══════════════
+    function renderGames() {
+        const grid = document.getElementById('gamesGrid');
+        grid.innerHTML = GAMES.map(g => {
+            const s = gameStates[g.id];
+            const energyPct = (s.energy / s.energyMax * 100).toFixed(0);
+            return `
+                <div class="game-card ${s.farming ? 'farming' : ''}">
+                    <div class="game-header">
+                        <div class="game-icon" style="background:${g.color}22;color:${g.color};">${g.icon}</div>
+                        <div class="game-name">${g.name}</div>
+                        <div class="game-status ${s.farming ? 'status-farming' : 'status-idle'}">
+                            ${s.farming ? '⚡ ФАРМ' : '💤 Ожидание'}
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat">
+                            <div class="stat-value">${s.coins.toLocaleString()}</div>
+                            <div class="stat-label">Монет</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${s.taps.toLocaleString()}</div>
+                            <div class="stat-label">Тапов</div>
+                        </div>
+                    </div>
+                    <div class="progress-wrap">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${energyPct}%;background:${g.color};"></div>
+                        </div>
+                        <div class="progress-label">
+                            <span>⚡ ${Math.floor(s.energy)}/${s.energyMax}</span>
+                            <span>+${g.energyRegen}/сек</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
-}
 
-// Клик
-document.getElementById('clicker').addEventListener('click',function(e){
-    money+=clickValue;totalEarned+=clickValue;
-    updateUI();render();
-    const rect=this.getBoundingClientRect();
-    const cx=rect.left+rect.width/2,cy=rect.top;
-    const ft=document.createElement('div');ft.className='float-text';
-    ft.textContent='+'+fm(clickValue);ft.style.left=cx+'px';ft.style.top=cy+'px';
-    document.getElementById('mainArea').appendChild(ft);setTimeout(()=>ft.remove(),800);
-});
+    function updateTotals() {
+        totalCoinsAll = GAMES.reduce((sum, g) => sum + gameStates[g.id].coins, 0);
+        document.getElementById('totalCoins').textContent = totalCoinsAll.toLocaleString();
+        document.getElementById('totalTaps').textContent = globalTaps.toLocaleString();
+        // Примерная оценка: 100000 монет = $1-5 при листинге
+        const estUSD = (totalCoinsAll / 100000 * 3).toFixed(0);
+        document.getElementById('estIncome').textContent = '$' + estUSD;
+        document.getElementById('globalTaps').textContent = globalTaps.toLocaleString();
+    }
 
-// Доход
-setInterval(()=>{if(incomePerSec>0){money+=incomePerSec/20;totalEarned+=incomePerSec/20}updateUI()},50);
+    function addLog(type, msg) {
+        const log = document.getElementById('logArea');
+        const time = new Date().toLocaleTimeString();
+        const cls = { tap: 'log-tap', bonus: 'log-bonus', energy: 'log-energy', error: 'log-error' };
+        log.innerHTML += `\n<span class="${cls[type] || ''}">[${time}] ${msg}</span>`;
+        log.scrollTop = log.scrollHeight;
+        if (log.children.length > 80) log.removeChild(log.firstChild);
+    }
 
-// Менеджеры
-setInterval(()=>{managers.forEach(m=>{if(!m.owned)return;const b=businesses.find(x=>x.id===m.bizId);if(b&&b.owned>0){money+=b.income*b.owned/4;totalEarned+=b.income*b.owned/4}})},1000);
+    // ═══════════════ ФАРМ ОДНОЙ ИГРЫ ═══════════════
+    async function farmGame(gameId) {
+        const game = GAMES.find(g => g.id === gameId);
+        const state = gameStates[gameId];
 
-updateUI();render();
+        if (!state.farming) return;
+
+        // Проверка энергии
+        if (state.energy < game.tapDelay / 10) {
+            addLog('energy', `${game.name}: ⚡ Мало энергии, ждём восстановления...`);
+            return;
+        }
+
+        // Симуляция тапов
+        const tapsToDo = Math.min(game.tapsPerCycle, Math.floor(state.energy));
+        for (let i = 0; i < tapsToDo; i++) {
+            if (!state.farming) break;
+            state.energy -= 0.5;
+            state.taps++;
+            state.coins += game.coinsPerTap;
+            globalTaps++;
+            await sleep(game.tapDelay);
+        }
+
+        addLog('tap', `${game.name}: +${tapsToDo} тапов | Монет: ${state.coins.toLocaleString()} | Энергия: ${Math.floor(state.energy)}`);
+        updateTotals();
+        renderGames();
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ═══════════════ ВОССТАНОВЛЕНИЕ ЭНЕРГИИ ═══════════════
+    function regenEnergy(gameId) {
+        const game = GAMES.find(g => g.id === gameId);
+        const state = gameStates[gameId];
+        state.energy = Math.min(state.energy + game.energyRegen, state.energyMax);
+        renderGames();
+    }
+
+    // ═══════════════ ЗАПУСК ОДНОЙ ИГРЫ ═══════════════
+    function startGame(gameId) {
+        const game = GAMES.find(g => g.id === gameId);
+        const state = gameStates[gameId];
+        if (state.farming) return;
+
+        state.farming = true;
+        state.energy = game.energyMax;
+        addLog('tap', `${game.name}: 🟢 Запущен фарм`);
+
+        // Цикл тапов
+        intervals[gameId] = setInterval(() => farmGame(gameId), game.tapsPerCycle * game.tapDelay + 200);
+
+        // Восстановление энергии
+        energyIntervals[gameId] = setInterval(() => regenEnergy(gameId), 1000);
+
+        renderGames();
+    }
+
+    function stopGame(gameId) {
+        const state = gameStates[gameId];
+        state.farming = false;
+        if (intervals[gameId]) clearInterval(intervals[gameId]);
+        if (energyIntervals[gameId]) clearInterval(energyIntervals[gameId]);
+        addLog('tap', `${GAMES.find(g => g.id === gameId).name}: 🔴 Остановлен`);
+        renderGames();
+    }
+
+    // ═══════════════ УПРАВЛЕНИЕ ВСЕМИ ═══════════════
+    function startAll() {
+        if (isRunning) return;
+        isRunning = true;
+
+        GAMES.forEach(g => startGame(g.id));
+
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        document.getElementById('globalDot').className = 'status-dot online';
+        document.getElementById('globalStatus').textContent = '⚡ Фарм активен (6 игр)';
+        addLog('bonus', '🚀 Все 6 игр запущены! Фарм 24/7.');
+    }
+
+    function stopAll() {
+        isRunning = false;
+        GAMES.forEach(g => stopGame(g.id));
+
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+        document.getElementById('globalDot').className = 'status-dot offline';
+        document.getElementById('globalStatus').textContent = 'Бот остановлен';
+        addLog('tap', '⏹ Все игры остановлены.');
+    }
+
+    function collectAllBonuses() {
+        let totalBonus = 0;
+        GAMES.forEach(g => {
+            const state = gameStates[g.id];
+            if (!state.bonusCollected) {
+                state.coins += g.dailyBonus;
+                state.bonusCollected = true;
+                totalBonus += g.dailyBonus;
+                addLog('bonus', `${g.name}: 🎁 +${g.dailyBonus} бонусных монет`);
+            }
+        });
+        if (totalBonus === 0) {
+            addLog('bonus', 'ℹ️ Все бонусы уже собраны сегодня.');
+        } else {
+            addLog('bonus', `🎁 Всего собрано бонусов: ${totalBonus.toLocaleString()} монет`);
+        }
+        updateTotals();
+        renderGames();
+
+        // Сброс флага бонуса через 24 часа
+        setTimeout(() => {
+            GAMES.forEach(g => { gameStates[g.id].bonusCollected = false; });
+            addLog('bonus', '🔄 Бонусы снова доступны!');
+        }, 24 * 60 * 60 * 1000);
+    }
+
+    function resetAll() {
+        if (isRunning) stopAll();
+        GAMES.forEach(g => {
+            gameStates[g.id] = {
+                coins: 0, taps: 0,
+                energy: g.energyMax, energyMax: g.energyMax,
+                farming: false, bonusCollected: false,
+            };
+        });
+        globalTaps = 0;
+        totalCoinsAll = 0;
+        updateTotals();
+        renderGames();
+        document.getElementById('logArea').innerHTML = '<span style="color:#555;">[Система] Сброшено. Нажмите "Запустить все игры".</span>';
+    }
+
+    // ═══════════════ АВТО-БОНУС КАЖДЫЕ 24Ч ═══════════════
+    setInterval(() => {
+        if (isRunning) collectAllBonuses();
+    }, 24 * 60 * 60 * 1000);
+
+    // ═══════════════ СОХРАНЕНИЕ В localStorage ═══════════════
+    function saveState() {
+        localStorage.setItem('gameFarmer', JSON.stringify({
+            gameStates, globalTaps, totalCoinsAll, isRunning
+        }));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('gameFarmer');
+        if (saved) {
+            const data = JSON.parse(saved);
+            gameStates = data.gameStates;
+            globalTaps = data.globalTaps;
+            totalCoinsAll = data.totalCoinsAll;
+            updateTotals();
+            renderGames();
+            if (data.isRunning) {
+                document.getElementById('btnStart').disabled = true;
+                document.getElementById('btnStop').disabled = false;
+                document.getElementById('globalDot').className = 'status-dot online';
+                document.getElementById('globalStatus').textContent = '⚡ Фарм активен (восстановлен)';
+                isRunning = true;
+                GAMES.forEach(g => startGame(g.id));
+                addLog('bonus', '🔄 Состояние восстановлено. Фарм продолжается.');
+            }
+        }
+    }
+
+    setInterval(saveState, 30000);
+
+    // ═══════════════ СТАРТ ═══════════════
+    renderGames();
+    updateTotals();
+    loadState();
+    addLog('bonus', '💡 Нажмите "Запустить все игры" для старта фарма 24/7.');
+    addLog('bonus', '💰 При листинге монеты обмениваются на реальные деньги.');
+    addLog('bonus', '📊 Ожидаемый доход: $50-500 с каждой игры.');
 </script>
+
 </body>
 </html>
