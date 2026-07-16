@@ -1,531 +1,692 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Game Farmer — 6 игр</title>
-    <style>
-        :root {
-            --bg: #0d0d14;
-            --card: #16161f;
-            --border: #252530;
-            --text: #ddd;
-            --green: #00e676;
-            --gold: #ffd740;
-            --blue: #448aff;
-            --red: #ff5252;
-            --purple: #b388ff;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        header h1 {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--green), var(--blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        header p { color: #888; font-size: 14px; margin-top: 4px; }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .btn {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: -0.2px;
-        }
-        .btn-start { background: var(--green); color: #000; }
-        .btn-start:hover { box-shadow: 0 0 24px rgba(0,230,118,0.5); transform: translateY(-1px); }
-        .btn-stop { background: var(--red); color: #fff; }
-        .btn-stop:hover { box-shadow: 0 0 24px rgba(255,82,82,0.5); }
-        .btn-bonus { background: var(--gold); color: #000; }
-        .btn-bonus:hover { box-shadow: 0 0 24px rgba(255,215,64,0.5); }
-        .btn-reset { background: #444; color: #fff; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .status-bar {
-            text-align: center;
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-        .status-dot {
-            display: inline-block;
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .online { background: var(--green); box-shadow: 0 0 10px var(--green); }
-        .offline { background: var(--red); }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .game-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-        .game-card.active { border-color: var(--green); }
-        .game-card.farming { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,215,64,0.15); }
-
-        .game-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-        .game-icon {
-            width: 44px; height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        .game-name { font-size: 17px; font-weight: 700; }
-        .game-status {
-            margin-left: auto;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .status-farming { background: rgba(255,215,64,0.15); color: var(--gold); }
-        .status-idle { background: rgba(255,255,255,0.05); color: #888; }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .stat {
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-        }
-        .stat-value { font-size: 18px; font-weight: 700; color: var(--gold); }
-        .stat-label { font-size: 11px; color: #777; margin-top: 2px; }
-
-        .progress-wrap { margin: 10px 0; }
-        .progress-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--green), var(--blue));
-            border-radius: 3px;
-            transition: width 0.4s;
-        }
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #777;
-            margin-top: 4px;
-        }
-
-        .log-area {
-            background: #000;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            height: 150px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 11px;
-            line-height: 1.8;
-            color: #999;
-            margin-top: 16px;
-        }
-        .log-area .log-tap { color: var(--green); }
-        .log-area .log-bonus { color: var(--gold); }
-        .log-area .log-energy { color: var(--blue); }
-        .log-area .log-error { color: var(--red); }
-
-        .total-stats {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 24px;
-        }
-        .total-stat {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 24px;
-            text-align: center;
-            min-width: 120px;
-        }
-        .total-stat .ts-val { font-size: 24px; font-weight: 800; color: var(--green); }
-        .total-stat .ts-lbl { font-size: 12px; color: #888; }
-
-        @media (max-width: 600px) {
-            .games-grid { grid-template-columns: 1fr; }
-            .btn { padding: 10px 18px; font-size: 13px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CS2 Dust 2 | First Person 3D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      overflow: hidden;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    #blocker {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #menu-panel {
+      background: rgba(10,10,10,0.95);
+      border: 2px solid #ff6600;
+      border-radius: 20px;
+      padding: 50px 40px;
+      text-align: center;
+      color: #fff;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 60px rgba(255,102,0,0.4);
+      min-width: 420px;
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .menu-title {
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ff6600, #ffaa00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+      text-shadow: 0 0 30px rgba(255,102,0,0.5);
+    }
+    .menu-btn {
+      display: block;
+      width: 100%;
+      padding: 16px 20px;
+      margin: 12px 0;
+      font-size: 22px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+      color: #ddd;
+      transition: all 0.3s ease;
+      letter-spacing: 2px;
+      border: 1px solid #555;
+    }
+    .menu-btn:hover {
+      background: linear-gradient(135deg, #ff6600, #ff8800);
+      color: #000;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(255,102,0,0.6);
+      border-color: #ffaa00;
+    }
+    .menu-btn.green { background: linear-gradient(135deg, #2a5a2a, #3a7a3a); }
+    .menu-btn.green:hover { background: linear-gradient(135deg, #0f0, #4f4); color:#000; }
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: rgba(20,20,20,0.98);
+      border: 2px solid #ff6600;
+      border-radius: 18px;
+      padding: 35px;
+      color: #ddd;
+      min-width: 440px;
+      max-width: 550px;
+      box-shadow: 0 0 70px rgba(0,0,0,0.8);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .close-btn {
+      background: #c44;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .hud-container {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .hud-block {
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(5px);
+      padding: 10px 18px;
+      border-radius: 10px;
+      color: #ccc;
+      font-weight: bold;
+      border: 1px solid #444;
+      font-size: 16px;
+    }
+    .hp-bar-outer { width: 160px; height: 10px; background:#333; border-radius:5px; overflow:hidden; margin:5px 0; }
+    .hp-bar-inner { height:100%; background: linear-gradient(90deg,#0f0,#8f0); transition: width 0.2s; }
+    .minimap {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 180px;
+      height: 180px;
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #555;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+      overflow: hidden;
+    }
+    .case-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 20px 0; }
+    .case-item { background:#222; padding:20px; border-radius:12px; text-align:center; cursor:pointer; border:2px solid #444; transition:0.2s; }
+    .case-item:hover { border-color:#ffaa00; transform:scale(1.03); }
+    .inventory-grid { display: grid; grid-template-columns: repeat(4,1fr); gap:10px; margin:20px 0; }
+    .inv-item { background:#222; padding:12px; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #555; }
+    .inv-item.active { border-color:#0f0; box-shadow:0 0 15px #0f0; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
+  <div id="blocker"><div id="menu-panel">
+    <div class="menu-title">DUST 2</div>
+    <button id="playBtn" class="menu-btn green">▶ PLAY</button>
+    <button id="casesBtn" class="menu-btn">🎁 КЕЙСЫ</button>
+    <button id="inventoryBtn" class="menu-btn">🎒 ИНВЕНТАРЬ</button>
+    <button id="settingsBtn" class="menu-btn">⚙ НАСТРОЙКИ</button>
+  </div></div>
 
-<header>
-    <h1>🎮 Telegram Game Farmer</h1>
-    <p>Тапает 6 игр одновременно • Доход $50-500 при листинге каждой</p>
-</header>
+  <!-- Модалка кейсов -->
+  <div id="casesModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Открытие кейсов</h2>
+      <div class="case-grid">
+        <div class="case-item" data-case="weapon"><span style="font-size:40px;">📦</span><br>Оружейный</div>
+        <div class="case-item" data-case="knife"><span style="font-size:40px;">🔪</span><br>Ножевой</div>
+        <div class="case-item" data-case="gloves"><span style="font-size:40px;">🧤</span><br>Перчатки</div>
+      </div>
+      <p id="caseResultText" style="color:#ffaa00; min-height:24px;"></p>
+      <button class="close-btn" id="closeCasesBtn">Закрыть</button>
+    </div>
+  </div>
 
-<div class="controls">
-    <button class="btn btn-start" id="btnStart" onclick="startAll()">▶ Запустить все игры</button>
-    <button class="btn btn-stop" id="btnStop" onclick="stopAll()" disabled>⏹ Остановить</button>
-    <button class="btn btn-bonus" onclick="collectAllBonuses()">🎁 Собрать все бонусы</button>
-    <button class="btn btn-reset" onclick="resetAll()">🔄 Сброс</button>
-</div>
+  <!-- Модалка инвентаря -->
+  <div id="inventoryModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Инвентарь</h2>
+      <div class="inventory-grid" id="invGridContent"></div>
+      <button class="close-btn" id="closeInventoryBtn">Закрыть</button>
+    </div>
+  </div>
 
-<div class="status-bar">
-    <span class="status-dot offline" id="globalDot"></span>
-    <span id="globalStatus">Бот остановлен</span>
-    <span style="margin-left:16px;color:#888;">| Общий фарм: <b id="globalTaps" style="color:var(--gold);">0</b> тапов</span>
-</div>
+  <!-- Модалка настроек -->
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Настройки</h2>
+      <label>Чувствительность: <input type="range" id="sensSlider" min="0.3" max="3" step="0.1" value="1"></label>
+      <span id="sensLabel">1.0</span><br><br>
+      <label>Громкость: <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.6"></label>
+      <span id="volLabel">0.6</span><br><br>
+      <button class="close-btn" id="closeSettingsBtn">Закрыть</button>
+    </div>
+  </div>
 
-<div class="games-grid" id="gamesGrid"></div>
+  <div class="hud-container">
+    <div class="hud-block">
+      <div>HP <span id="hpText">100</span></div>
+      <div class="hp-bar-outer"><div id="hpFillBar" class="hp-bar-inner" style="width:100%"></div></div>
+      <div>Броня <span id="armText">100</span></div>
+    </div>
+    <div class="hud-block" style="text-align:right;">
+      <div style="color:#fff; font-size:18px;" id="weaponNameHUD">AK-47</div>
+      <div style="color:#ffaa00;"><span id="ammoHUD">30</span> / <span id="reserveHUD">90</span></div>
+    </div>
+  </div>
+  <canvas id="minimapCanvas" class="minimap" width="180" height="180"></canvas>
 
-<div class="total-stats">
-    <div class="total-stat"><div class="ts-val" id="totalCoins">0</div><div class="ts-lbl">Всего монет</div></div>
-    <div class="total-stat"><div class="ts-val" id="totalTaps">0</div><div class="ts-lbl">Всего тапов</div></div>
-    <div class="total-stat"><div class="ts-val" id="estIncome">$0</div><div class="ts-lbl">Ожидаемый доход</div></div>
-</div>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.157.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
 
-<div class="log-area" id="logArea">
-    <span style="color:#555;">[Система] Панель готова. Нажмите "Запустить все игры".</span>
-</div>
+    // ---------- AUDIO SYSTEM (Web Audio API) ----------
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let masterGain = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+        masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
+        masterGain.gain.value = 0.6;
+      }
+    }
+    function playSound(freq, type='square', duration=0.15, vol=0.3) {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(vol, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(t);
+      osc.stop(t + duration);
+    }
+    function sfxShoot(weapon) {
+      if (weapon === 'ak47') playSound(80, 'sawtooth', 0.12, 0.5);
+      else if (weapon === 'm4a4') playSound(100, 'square', 0.1, 0.4);
+      else if (weapon === 'awp') playSound(50, 'sawtooth', 0.25, 0.7);
+      else if (weapon === 'deagle') playSound(120, 'square', 0.15, 0.6);
+    }
+    function sfxStep() { playSound(200, 'triangle', 0.06, 0.1); }
 
-<script>
-    // ═══════════════ КОНФИГ ИГР ═══════════════
-    const GAMES = [
-        {
-            id: 'blum', name: 'Blum', icon: '🌸', color: '#7c4dff',
-            tapsPerCycle: 150, tapDelay: 50, energyMax: 500, energyRegen: 1,
-            dailyBonus: 500, coinsPerTap: 1,
-        },
-        {
-            id: 'tapswap', name: 'TapSwap', icon: '🔄', color: '#00bcd4',
-            tapsPerCycle: 200, tapDelay: 40, energyMax: 600, energyRegen: 2,
-            dailyBonus: 1000, coinsPerTap: 1,
-        },
-        {
-            id: 'hamster', name: 'Hamster Kombat', icon: '🐹', color: '#ff9800',
-            tapsPerCycle: 100, tapDelay: 60, energyMax: 400, energyRegen: 1.5,
-            dailyBonus: 750, coinsPerTap: 2,
-        },
-        {
-            id: 'catizen', name: 'Catizen', icon: '🐱', color: '#e91e63',
-            tapsPerCycle: 120, tapDelay: 55, energyMax: 450, energyRegen: 1.2,
-            dailyBonus: 600, coinsPerTap: 1,
-        },
-        {
-            id: 'yescoin', name: 'Yescoin', icon: '✅', color: '#4caf50',
-            tapsPerCycle: 180, tapDelay: 35, energyMax: 550, energyRegen: 1.8,
-            dailyBonus: 900, coinsPerTap: 1,
-        },
-        {
-            id: 'notcoin', name: 'Notcoin', icon: '💎', color: '#2196f3',
-            tapsPerCycle: 160, tapDelay: 45, energyMax: 500, energyRegen: 1,
-            dailyBonus: 800, coinsPerTap: 1,
-        },
-    ];
+    // ---------- THREE.JS SETUP ----------
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
 
-    // ═══════════════ СОСТОЯНИЕ ═══════════════
-    let isRunning = false;
-    let gameStates = {};
-    let globalTaps = 0;
-    let totalCoinsAll = 0;
-    let intervals = {};
-    let energyIntervals = {};
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 500);
+    camera.position.set(20, 5, 25);
+    camera.rotation.order = 'YXZ';
 
-    // Инициализация
-    GAMES.forEach(g => {
-        gameStates[g.id] = {
-            coins: 0,
-            taps: 0,
-            energy: g.energyMax,
-            energyMax: g.energyMax,
-            farming: false,
-            bonusCollected: false,
-        };
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    // Освещение
+    const ambient = new THREE.AmbientLight(0x404060);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xffeedd, 1.2);
+    sun.position.set(80, 100, 40);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 1024;
+    sun.shadow.mapSize.height = 1024;
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 300;
+    sun.shadow.camera.left = -80;
+    sun.shadow.camera.right = 80;
+    sun.shadow.camera.top = 80;
+    sun.shadow.camera.bottom = -80;
+    scene.add(sun);
+
+    // ---------- DUST 2 MAP (3D) ----------
+    const mapGroup = new THREE.Group();
+    scene.add(mapGroup);
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x8B7355, roughness: 0.9 });
+    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xC8B18B, roughness: 0.8 });
+    const crateMaterial = new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.7 });
+    const wallHeight = 6;
+    const tileSize = 4;
+
+    // Генерация Dust2 раскладки (та же логика что ранее, но для 3D)
+    const MAP_COLS = 30;
+    const MAP_ROWS = 22;
+    const layout = Array(MAP_ROWS).fill().map(() => Array(MAP_COLS).fill(0));
+    function buildLayout() {
+      for (let r=0; r<MAP_ROWS; r++) for (let c=0; c<MAP_COLS; c++) layout[r][c]=0;
+      for (let c=0; c<MAP_COLS; c++) { layout[0][c]=1; layout[MAP_ROWS-1][c]=1; }
+      for (let r=0; r<MAP_ROWS; r++) { layout[r][0]=1; layout[r][MAP_COLS-1]=1; }
+      // A site
+      for (let r=3; r<=7; r++) layout[r][23]=1;
+      for (let r=7; r<=10; r++) layout[r][26]=1;
+      // B site
+      for (let r=14; r<=18; r++) layout[r][3]=1;
+      // Mid
+      layout[9][13]=2; layout[9][14]=2;
+      layout[10][13]=2; layout[10][14]=2;
+      // Long A
+      for (let c=11; c<=19; c++) layout[4][c]=1;
+      // Tunnel B
+      for (let r=13; r<=17; r++) layout[r][10]=1;
+      // Crates
+      layout[8][16]=2; layout[8][17]=2;
+      layout[15][15]=2; layout[15][16]=2;
+    }
+    buildLayout();
+
+    function createMap() {
+      for (let r=0; r<MAP_ROWS; r++) {
+        for (let c=0; c<MAP_COLS; c++) {
+          const tile = layout[r][c];
+          const x = (c - MAP_COLS/2) * tileSize;
+          const z = (r - MAP_ROWS/2) * tileSize;
+          if (tile === 0) {
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(tileSize, tileSize), floorMaterial);
+            floor.rotation.x = -Math.PI/2;
+            floor.position.set(x, 0, z);
+            floor.receiveShadow = true;
+            mapGroup.add(floor);
+          } else if (tile === 1) {
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(tileSize, wallHeight, tileSize), wallMaterial);
+            wall.position.set(x, wallHeight/2, z);
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            mapGroup.add(wall);
+          } else if (tile === 2) {
+            const crate = new THREE.Mesh(new THREE.BoxGeometry(tileSize*0.8, 3, tileSize*0.8), crateMaterial);
+            crate.position.set(x, 1.5, z);
+            crate.castShadow = true;
+            crate.receiveShadow = true;
+            mapGroup.add(crate);
+          }
+        }
+      }
+    }
+    createMap();
+
+    // Коллизия (AABB для стен и ящиков)
+    const colliders = [];
+    for (let r=0; r<MAP_ROWS; r++) {
+      for (let c=0; c<MAP_COLS; c++) {
+        if (layout[r][c] >= 1) {
+          const x = (c - MAP_COLS/2) * tileSize;
+          const z = (r - MAP_ROWS/2) * tileSize;
+          colliders.push({
+            minX: x - tileSize/2, maxX: x + tileSize/2,
+            minZ: z - tileSize/2, maxZ: z + tileSize/2,
+            height: layout[r][c]===1 ? wallHeight : 3
+          });
+        }
+      }
+    }
+
+    function checkCollision(px, pz, radius = 1.2) {
+      for (let col of colliders) {
+        if (px + radius > col.minX && px - radius < col.maxX &&
+            pz + radius > col.minZ && pz - radius < col.maxZ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // ---------- WEAPON SYSTEM ----------
+    class Weapon {
+      constructor(name, damage, fireRate, mag, reserve, recoilPattern, modelColor = 0x333333) {
+        this.name = name;
+        this.damage = damage;
+        this.fireRate = fireRate;
+        this.magSize = mag;
+        this.currentAmmo = mag;
+        this.reserveAmmo = reserve;
+        this.recoilPattern = recoilPattern;
+        this.recoilIdx = 0;
+        this.lastShot = 0;
+        this.skin = 'default';
+        this.modelColor = modelColor;
+        this.reloading = false;
+        this.reloadTimer = 0;
+      }
+      canShoot(now) { return this.currentAmmo > 0 && (now - this.lastShot) >= (1000/this.fireRate) && !this.reloading; }
+      shoot(now) {
+        if (!this.canShoot(now)) return null;
+        this.currentAmmo--;
+        this.lastShot = now;
+        let rec = {dx:0, dy:0};
+        if (this.recoilPattern.length) {
+          rec = this.recoilPattern[this.recoilIdx % this.recoilPattern.length];
+          this.recoilIdx++;
+        }
+        return rec;
+      }
+      reload() {
+        if (this.reloading || this.currentAmmo === this.magSize || this.reserveAmmo <= 0) return;
+        this.reloading = true;
+        this.reloadTimer = 2.2;
+      }
+      updateReload(delta) {
+        if (this.reloading) {
+          this.reloadTimer -= delta;
+          if (this.reloadTimer <= 0) {
+            let need = this.magSize - this.currentAmmo;
+            if (this.reserveAmmo >= need) { this.reserveAmmo -= need; this.currentAmmo = this.magSize; }
+            else { this.currentAmmo += this.reserveAmmo; this.reserveAmmo = 0; }
+            this.reloading = false;
+            this.recoilIdx = 0;
+          }
+        }
+      }
+    }
+
+    const akRecoil = Array.from({length:12},(_,i)=>({dx: i*0.6, dy: -(i*0.5+1)}));
+    const m4Recoil = Array.from({length:10},(_,i)=>({dx: i*0.4, dy: -(i*0.4+0.8)}));
+    const awpRecoil = [{dx:0,dy:-4},{dx:2,dy:-6},{dx:5,dy:-7}];
+    const deagleRecoil = [{dx:0,dy:-2},{dx:3,dy:-5},{dx:6,dy:-7}];
+
+    const ak47 = new Weapon('AK-47', 36, 600, 30, 90, akRecoil, 0x8B4513);
+    const m4a4 = new Weapon('M4A4', 28, 666, 30, 90, m4Recoil, 0x2F4F4F);
+    const awp = new Weapon('AWP', 115, 41, 10, 30, awpRecoil, 0x006400);
+    const deagle = new Weapon('Desert Eagle', 63, 400, 7, 35, deagleRecoil, 0xA0522D);
+
+    let inventoryWeapons = [ak47, m4a4, awp, deagle];
+    let currentWeapon = ak47;
+
+    // ---------- PLAYER STATE ----------
+    const player = {
+      height: 4.5,
+      crouchHeight: 2.5,
+      speed: 8,
+      crouchSpeed: 4,
+      health: 100,
+      armor: 100,
+      crouching: false,
+      onGround: true,
+      yVelocity: 0,
+    };
+    const playerPos = new THREE.Vector3(0, player.height, 0);
+    let yaw = 0, pitch = 0;
+    let mouseSensitivity = 1.0;
+    let volume = 0.6;
+
+    // ---------- BOTS ----------
+    let bots = [];
+    function spawnBots(count=4) {
+      for (let i=0;i<count;i++) {
+        const bx = (Math.random()-0.5)*MAP_COLS*tileSize*0.7;
+        const bz = (Math.random()-0.5)*MAP_ROWS*tileSize*0.7;
+        if (!checkCollision(bx,bz,1.2)) {
+          const botMesh = new THREE.Mesh(new THREE.CylinderGeometry(1,1,4,8), new THREE.MeshStandardMaterial({color:0xff3333}));
+          botMesh.castShadow = true;
+          botMesh.position.set(bx,2,bz);
+          scene.add(botMesh);
+          bots.push({
+            mesh: botMesh,
+            health: 100,
+            alive: true,
+            speed: 4,
+            weapon: new Weapon('AK-47',36,500,30,90,akRecoil),
+            lastShot: 0,
+            aiTimer: Math.random()*3,
+          });
+        }
+      }
+    }
+    spawnBots(5);
+
+    // ---------- GUN MODEL (FIRST PERSON) ----------
+    const gunGroup = new THREE.Group();
+    camera.add(gunGroup);
+    gunGroup.position.set(0.6, -0.7, -1.2);
+    const gunBody = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.3,1.2), new THREE.MeshStandardMaterial({color:0x333}));
+    gunBody.position.z = -0.5;
+    gunGroup.add(gunBody);
+    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.8,8), new THREE.MeshStandardMaterial({color:0x111}));
+    gunBarrel.rotation.x = Math.PI/2;
+    gunBarrel.position.set(0,0.05,-1.0);
+    gunGroup.add(gunBarrel);
+    scene.add(camera);
+
+    // ---------- CONTROLS ----------
+    const keys = {};
+    document.addEventListener('keydown', e => { keys[e.code] = true; e.preventDefault(); });
+    document.addEventListener('keyup', e => { keys[e.code] = false; e.preventDefault(); });
+    document.addEventListener('mousemove', e => {
+      if (document.pointerLockElement === renderer.domElement) {
+        yaw -= e.movementX * 0.002 * mouseSensitivity;
+        pitch -= e.movementY * 0.002 * mouseSensitivity;
+        pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+      }
+    });
+    document.addEventListener('mousedown', e => {
+      if (e.button === 0 && document.pointerLockElement === renderer.domElement) shoot();
+    });
+    renderer.domElement.addEventListener('click', () => {
+      if (document.pointerLockElement !== renderer.domElement && gameState === 'playing')
+        renderer.domElement.requestPointerLock();
     });
 
-    // ═══════════════ РЕНДЕР ═══════════════
-    function renderGames() {
-        const grid = document.getElementById('gamesGrid');
-        grid.innerHTML = GAMES.map(g => {
-            const s = gameStates[g.id];
-            const energyPct = (s.energy / s.energyMax * 100).toFixed(0);
-            return `
-                <div class="game-card ${s.farming ? 'farming' : ''}">
-                    <div class="game-header">
-                        <div class="game-icon" style="background:${g.color}22;color:${g.color};">${g.icon}</div>
-                        <div class="game-name">${g.name}</div>
-                        <div class="game-status ${s.farming ? 'status-farming' : 'status-idle'}">
-                            ${s.farming ? '⚡ ФАРМ' : '💤 Ожидание'}
-                        </div>
-                    </div>
-                    <div class="stats-row">
-                        <div class="stat">
-                            <div class="stat-value">${s.coins.toLocaleString()}</div>
-                            <div class="stat-label">Монет</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">${s.taps.toLocaleString()}</div>
-                            <div class="stat-label">Тапов</div>
-                        </div>
-                    </div>
-                    <div class="progress-wrap">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width:${energyPct}%;background:${g.color};"></div>
-                        </div>
-                        <div class="progress-label">
-                            <span>⚡ ${Math.floor(s.energy)}/${s.energyMax}</span>
-                            <span>+${g.energyRegen}/сек</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function updateTotals() {
-        totalCoinsAll = GAMES.reduce((sum, g) => sum + gameStates[g.id].coins, 0);
-        document.getElementById('totalCoins').textContent = totalCoinsAll.toLocaleString();
-        document.getElementById('totalTaps').textContent = globalTaps.toLocaleString();
-        // Примерная оценка: 100000 монет = $1-5 при листинге
-        const estUSD = (totalCoinsAll / 100000 * 3).toFixed(0);
-        document.getElementById('estIncome').textContent = '$' + estUSD;
-        document.getElementById('globalTaps').textContent = globalTaps.toLocaleString();
-    }
-
-    function addLog(type, msg) {
-        const log = document.getElementById('logArea');
-        const time = new Date().toLocaleTimeString();
-        const cls = { tap: 'log-tap', bonus: 'log-bonus', energy: 'log-energy', error: 'log-error' };
-        log.innerHTML += `\n<span class="${cls[type] || ''}">[${time}] ${msg}</span>`;
-        log.scrollTop = log.scrollHeight;
-        if (log.children.length > 80) log.removeChild(log.firstChild);
-    }
-
-    // ═══════════════ ФАРМ ОДНОЙ ИГРЫ ═══════════════
-    async function farmGame(gameId) {
-        const game = GAMES.find(g => g.id === gameId);
-        const state = gameStates[gameId];
-
-        if (!state.farming) return;
-
-        // Проверка энергии
-        if (state.energy < game.tapDelay / 10) {
-            addLog('energy', `${game.name}: ⚡ Мало энергии, ждём восстановления...`);
-            return;
-        }
-
-        // Симуляция тапов
-        const tapsToDo = Math.min(game.tapsPerCycle, Math.floor(state.energy));
-        for (let i = 0; i < tapsToDo; i++) {
-            if (!state.farming) break;
-            state.energy -= 0.5;
-            state.taps++;
-            state.coins += game.coinsPerTap;
-            globalTaps++;
-            await sleep(game.tapDelay);
-        }
-
-        addLog('tap', `${game.name}: +${tapsToDo} тапов | Монет: ${state.coins.toLocaleString()} | Энергия: ${Math.floor(state.energy)}`);
-        updateTotals();
-        renderGames();
-    }
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // ═══════════════ ВОССТАНОВЛЕНИЕ ЭНЕРГИИ ═══════════════
-    function regenEnergy(gameId) {
-        const game = GAMES.find(g => g.id === gameId);
-        const state = gameStates[gameId];
-        state.energy = Math.min(state.energy + game.energyRegen, state.energyMax);
-        renderGames();
-    }
-
-    // ═══════════════ ЗАПУСК ОДНОЙ ИГРЫ ═══════════════
-    function startGame(gameId) {
-        const game = GAMES.find(g => g.id === gameId);
-        const state = gameStates[gameId];
-        if (state.farming) return;
-
-        state.farming = true;
-        state.energy = game.energyMax;
-        addLog('tap', `${game.name}: 🟢 Запущен фарм`);
-
-        // Цикл тапов
-        intervals[gameId] = setInterval(() => farmGame(gameId), game.tapsPerCycle * game.tapDelay + 200);
-
-        // Восстановление энергии
-        energyIntervals[gameId] = setInterval(() => regenEnergy(gameId), 1000);
-
-        renderGames();
-    }
-
-    function stopGame(gameId) {
-        const state = gameStates[gameId];
-        state.farming = false;
-        if (intervals[gameId]) clearInterval(intervals[gameId]);
-        if (energyIntervals[gameId]) clearInterval(energyIntervals[gameId]);
-        addLog('tap', `${GAMES.find(g => g.id === gameId).name}: 🔴 Остановлен`);
-        renderGames();
-    }
-
-    // ═══════════════ УПРАВЛЕНИЕ ВСЕМИ ═══════════════
-    function startAll() {
-        if (isRunning) return;
-        isRunning = true;
-
-        GAMES.forEach(g => startGame(g.id));
-
-        document.getElementById('btnStart').disabled = true;
-        document.getElementById('btnStop').disabled = false;
-        document.getElementById('globalDot').className = 'status-dot online';
-        document.getElementById('globalStatus').textContent = '⚡ Фарм активен (6 игр)';
-        addLog('bonus', '🚀 Все 6 игр запущены! Фарм 24/7.');
-    }
-
-    function stopAll() {
-        isRunning = false;
-        GAMES.forEach(g => stopGame(g.id));
-
-        document.getElementById('btnStart').disabled = false;
-        document.getElementById('btnStop').disabled = true;
-        document.getElementById('globalDot').className = 'status-dot offline';
-        document.getElementById('globalStatus').textContent = 'Бот остановлен';
-        addLog('tap', '⏹ Все игры остановлены.');
-    }
-
-    function collectAllBonuses() {
-        let totalBonus = 0;
-        GAMES.forEach(g => {
-            const state = gameStates[g.id];
-            if (!state.bonusCollected) {
-                state.coins += g.dailyBonus;
-                state.bonusCollected = true;
-                totalBonus += g.dailyBonus;
-                addLog('bonus', `${g.name}: 🎁 +${g.dailyBonus} бонусных монет`);
+    let recoilX = 0, recoilY = 0;
+    function shoot() {
+      const now = performance.now()/1000;
+      const rec = currentWeapon.shoot(now);
+      if (rec) {
+        recoilX += rec.dx * 0.003;
+        recoilY += rec.dy * 0.003;
+        sfxShoot(currentWeapon.name.includes('AK')?'ak47':currentWeapon.name.includes('M4')?'m4a4':currentWeapon.name.includes('AWP')?'awp':'deagle');
+        // Анимация отдачи на модели
+        gunGroup.position.z = -1.0;
+        setTimeout(()=>{gunGroup.position.z=-1.2;},60);
+        // Raycast для попадания
+        const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+        const ray = new THREE.Raycaster(camera.position, dir, 0.5, 200);
+        for (let bot of bots) {
+          if (!bot.alive) continue;
+          const intersects = ray.intersectObject(bot.mesh);
+          if (intersects.length > 0 && intersects[0].distance < 150) {
+            bot.health -= currentWeapon.damage;
+            if (bot.health <= 0) {
+              bot.alive = false;
+              bot.mesh.visible = false;
+              setTimeout(()=>{
+                bot.health=100; bot.alive=true; bot.mesh.visible=true;
+                let nx, nz;
+                do { nx=(Math.random()-0.5)*MAP_COLS*tileSize*0.7; nz=(Math.random()-0.5)*MAP_ROWS*tileSize*0.7; }
+                while(checkCollision(nx,nz,1.2));
+                bot.mesh.position.set(nx,2,nz);
+              },4000);
             }
-        });
-        if (totalBonus === 0) {
-            addLog('bonus', 'ℹ️ Все бонусы уже собраны сегодня.');
-        } else {
-            addLog('bonus', `🎁 Всего собрано бонусов: ${totalBonus.toLocaleString()} монет`);
+            break;
+          }
         }
-        updateTotals();
-        renderGames();
-
-        // Сброс флага бонуса через 24 часа
-        setTimeout(() => {
-            GAMES.forEach(g => { gameStates[g.id].bonusCollected = false; });
-            addLog('bonus', '🔄 Бонусы снова доступны!');
-        }, 24 * 60 * 60 * 1000);
+      }
     }
 
-    function resetAll() {
-        if (isRunning) stopAll();
-        GAMES.forEach(g => {
-            gameStates[g.id] = {
-                coins: 0, taps: 0,
-                energy: g.energyMax, energyMax: g.energyMax,
-                farming: false, bonusCollected: false,
-            };
+    // ---------- UI HANDLERS ----------
+    let gameState = 'menu'; // menu, playing, cases, inventory, settings
+    const blocker = document.getElementById('blocker');
+    const menuPanel = document.getElementById('menu-panel');
+    const casesModal = document.getElementById('casesModal');
+    const inventoryModal = document.getElementById('inventoryModal');
+    const settingsModal = document.getElementById('settingsModal');
+
+    document.getElementById('playBtn').addEventListener('click', ()=>{
+      initAudio();
+      blocker.classList.add('hidden');
+      gameState = 'playing';
+      renderer.domElement.requestPointerLock();
+    });
+    document.getElementById('casesBtn').addEventListener('click', ()=>{
+      casesModal.classList.remove('hidden');
+      gameState = 'cases';
+    });
+    document.getElementById('inventoryBtn').addEventListener('click', ()=>{
+      inventoryModal.classList.remove('hidden');
+      updateInventoryUI();
+      gameState = 'inventory';
+    });
+    document.getElementById('settingsBtn').addEventListener('click', ()=>{
+      settingsModal.classList.remove('hidden');
+      gameState = 'settings';
+    });
+    document.getElementById('closeCasesBtn').addEventListener('click', ()=>{
+      casesModal.classList.add('hidden');
+      gameState = 'menu';
+    });
+    document.getElementById('closeInventoryBtn').addEventListener('click', ()=>{
+      inventoryModal.classList.add('hidden');
+      gameState = 'menu';
+    });
+    document.getElementById('closeSettingsBtn').addEventListener('click', ()=>{
+      settingsModal.classList.add('hidden');
+      gameState = 'menu';
+    });
+
+    // Кейсы
+    let caseKeys = 5;
+    const skins = ['Default','Redline','Asiimov','Vulcan','Neon Revolution','Fade','Crimson Web'];
+    document.querySelectorAll('.case-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if (caseKeys<=0) { document.getElementById('caseResultText').textContent='Нет ключей!'; return; }
+        caseKeys--;
+        const skin = skins[Math.floor(Math.random()*skins.length)];
+        currentWeapon.skin = skin;
+        document.getElementById('caseResultText').textContent = `Получен скин "${skin}" для ${currentWeapon.name}`;
+        updateInventoryUI();
+      });
+    });
+
+    function updateInventoryUI() {
+      const grid = document.getElementById('invGridContent');
+      grid.innerHTML = '';
+      inventoryWeapons.forEach((wp,idx)=>{
+        const div = document.createElement('div');
+        div.className = 'inv-item' + (currentWeapon===wp?' active':'');
+        div.innerHTML = `${wp.name}<br>${wp.skin}<br>🔫`;
+        div.addEventListener('click',()=>{
+          currentWeapon = wp;
+          updateInventoryUI();
         });
-        globalTaps = 0;
-        totalCoinsAll = 0;
-        updateTotals();
-        renderGames();
-        document.getElementById('logArea').innerHTML = '<span style="color:#555;">[Система] Сброшено. Нажмите "Запустить все игры".</span>';
+        grid.appendChild(div);
+      });
     }
+    updateInventoryUI();
 
-    // ═══════════════ АВТО-БОНУС КАЖДЫЕ 24Ч ═══════════════
-    setInterval(() => {
-        if (isRunning) collectAllBonuses();
-    }, 24 * 60 * 60 * 1000);
+    // Настройки
+    document.getElementById('sensSlider').addEventListener('input', e=>{
+      mouseSensitivity = parseFloat(e.target.value);
+      document.getElementById('sensLabel').textContent = mouseSensitivity.toFixed(1);
+    });
+    document.getElementById('volSlider').addEventListener('input', e=>{
+      volume = parseFloat(e.target.value);
+      if (masterGain) masterGain.gain.value = volume;
+      document.getElementById('volLabel').textContent = volume.toFixed(2);
+    });
 
-    // ═══════════════ СОХРАНЕНИЕ В localStorage ═══════════════
-    function saveState() {
-        localStorage.setItem('gameFarmer', JSON.stringify({
-            gameStates, globalTaps, totalCoinsAll, isRunning
-        }));
-    }
+    // Мини-карта
+    const minimapCanvas = document.getElementById('minimapCanvas');
+    const minimapCtx = minimapCanvas.getContext('2d');
 
-    function loadState() {
-        const saved = localStorage.getItem('gameFarmer');
-        if (saved) {
-            const data = JSON.parse(saved);
-            gameStates = data.gameStates;
-            globalTaps = data.globalTaps;
-            totalCoinsAll = data.totalCoinsAll;
-            updateTotals();
-            renderGames();
-            if (data.isRunning) {
-                document.getElementById('btnStart').disabled = true;
-                document.getElementById('btnStop').disabled = false;
-                document.getElementById('globalDot').className = 'status-dot online';
-                document.getElementById('globalStatus').textContent = '⚡ Фарм активен (восстановлен)';
-                isRunning = true;
-                GAMES.forEach(g => startGame(g.id));
-                addLog('bonus', '🔄 Состояние восстановлено. Фарм продолжается.');
-            }
+    // ---------- GAME LOOP ----------
+    let lastTime = performance.now()/1000;
+    let stepTimer = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now()/1000;
+      let delta = Math.min(0.1, now - lastTime);
+      lastTime = now;
+
+      if (gameState === 'playing') {
+        // Движение
+        let spd = keys['ControlLeft'] || keys['ControlRight'] ? player.crouchSpeed : player.speed;
+        player.crouching = keys['ControlLeft'] || keys['ControlRight'];
+        const forward = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+        const right = new THREE.Vector3(1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+        let moveX = 0, moveZ = 0;
+        if (keys['KeyW']) { moveX += forward.x*spd*delta; moveZ += forward.z*spd*delta; }
+        if (keys['KeyS']) { moveX -= forward.x*spd*delta; moveZ -= forward.z*spd*delta; }
+        if (keys['KeyA']) { moveX -= right.x*spd*delta; moveZ -= right.z*spd*delta; }
+        if (keys['KeyD']) { moveX += right.x*spd*delta; moveZ += right.z*spd*delta; }
+
+        // Прыжок
+        if (keys['Space'] && player.onGround) {
+          player.yVelocity = 9;
+          player.onGround = false;
         }
-    }
+        player.yVelocity -= 18 * delta;
+        let newY = playerPos.y + player.yVelocity * delta;
+        if (newY <= player.height) { newY = player.height; player.yVelocity = 0; player.onGround = true; }
+        playerPos.y = newY;
 
-    setInterval(saveState, 30000);
+        // Коллизия по XZ
+        let newX = playerPos.x + moveX;
+        let newZ = playerPos.z + moveZ;
+        if (!checkCollision(newX, playerPos.z, 1.2)) playerPos.x = newX;
+        if (!checkCollision(playerPos.x, newZ, 1.2)) playerPos.z = newZ;
 
-    // ═══════════════ СТАРТ ═══════════════
-    renderGames();
-    updateTotals();
-    loadState();
-    addLog('bonus', '💡 Нажмите "Запустить все игры" для старта фарма 24/7.');
-    addLog('bonus', '💰 При листинге монеты обмениваются на реальные деньги.');
-    addLog('bonus', '📊 Ожидаемый доход: $50-500 с каждой игры.');
-</script>
+        // Звук шагов
+        if ((Math.abs(moveX)>0.1 || Math.abs(moveZ)>0.1) && player.onGround) {
+          stepTimer += delta;
+          if (stepTimer > 0.4) { sfxStep(); stepTimer = 0; }
+        } else stepTimer = 0.4;
 
-</body>
-</html>
+        // Камера
+        camera.position.copy(playerPos);
+        camera.rotation.order = 'YXZ';
+        camera.rotation.y = yaw;
+        camera.rotation.x = pitch;
+
+        // Сброс отдачи
+        recoilX *= 0.85;
+        recoilY *= 0.85;
+
+        // Перезарядка
+        if (keys['KeyR']) { currentWeapon.reload(); keys['KeyR'] = false; }
+        currentWeapon.updateReload(delta);
+
+        // Боты AI
+        for (let bot of bots) {
+          if (!bot.alive) continue;
+          const dx = playerPos.x - bot.mesh.position.x;
+          const dz = playerPos.z - bot.mesh.position.z;
+          const dist = Math.sqrt(dx*dx+dz*dz);
+          if (dist < 30) {
+            const angle = Math.atan2
